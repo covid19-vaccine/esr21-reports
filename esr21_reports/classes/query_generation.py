@@ -12,6 +12,7 @@ class QueryGeneration:
     screening_eligibility_model = 'esr21_subject.screeningeligibility'
     eligibility_confirmation_model = 'esr21_subject.eligibilityconfirmation'
     informed_consent_model = 'esr21_subject.informedconsent'
+    subject_visit_model = 'esr21_subject.subjectvisit'
 
     @property
     def consent_model_cls(self):
@@ -36,6 +37,10 @@ class QueryGeneration:
     @property
     def vaccination_details_cls(self):
         return django_apps.get_model(self.vaccination_details_model)
+    
+    @property
+    def subject_visit_cls(self):
+        return django_apps.get_model(self.subject_visit_model)
 
     @property
     def query_name(self):
@@ -95,6 +100,18 @@ class QueryGeneration:
             return False
         else:
             return False if appt.appt_status == COMPLETE_APPT else True
+        
+    def check_visit_status(self, required_crf=None):        
+        try:
+            sv = self.subject_visit_cls.objects.get(
+            subject_identifier=required_crf.subject_identifier,
+            visit_code=required_crf.visit_code)
+            
+        except self.subject_visit_cls.DoesNotExist: 
+            pass
+        else:
+            return False if sv.reason == 'missed' else True
+   
 
     @property
     def first_dose_second_dose_missing(self):
@@ -161,6 +178,7 @@ class QueryGeneration:
     def missing_visit_forms(self):
         """
         Not on demographic data
+        need to update to remove participants who missed their visits
         """
         crfmetadata = django_apps.get_model('edc_metadata.crfmetadata')
         query = self.create_query_name(
@@ -187,6 +205,7 @@ class QueryGeneration:
                 comment=comment
             )
 
+        
     @property
     def male_child_bearing_potential(self):
         """

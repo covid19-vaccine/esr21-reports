@@ -14,6 +14,7 @@ from pathlib import Path
 
 from esr21.esr21.settings import APP_NAME
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
