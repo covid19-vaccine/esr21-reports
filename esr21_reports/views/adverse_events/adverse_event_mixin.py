@@ -242,6 +242,7 @@ class AdverseEventRecordMixin:
                 f_town, phikwe, ]
 
     def get_adverse_event_by_site(self, site=None):
-        site_id = self.get_site_id(site)
+        site_helper = SiteHelperMixin()
+        site_id = site_helper.get_site_id(site)
         if site_id:
             return self.ae_cls.objects.filter(site_id=site_id)

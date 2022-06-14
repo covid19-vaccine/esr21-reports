@@ -248,11 +248,12 @@ class DemographicsMixin(EdcBaseViewMixin):
         diabetes.insert(0, sum(diabetes))
 
         return ["Diabetes", *diabetes]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context.update(
+    
+    @property
+    def demographics_statistics(self):
+        statistics = dict()
+        
+        statistics.update(
             site_names=self.site_names,
             age_stats=self.age_range_statistics,
             diabates_stats=self.diabates_statistics,
@@ -261,6 +262,24 @@ class DemographicsMixin(EdcBaseViewMixin):
             hiv_stats=self.hiv_statistics,
             pregnency_stats=self.pregnancy_statistics,
             race_stats=self.race_statistics,
+        )
+        
+        return statistics
+    
+    @property
+    def demographics_statistics_preprocessor(self):
+        statistics =  self.cache_preprocessor('demographics_statistics')
+        
+        if statistics:
+            return statistics
+        else:
+            return dict()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update(
+            **self.demographics_statistics_preprocessor
         )
 
         return context

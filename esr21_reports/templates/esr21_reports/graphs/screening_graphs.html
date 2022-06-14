@@ -131,7 +131,7 @@
     		  },
 
     		  xAxis: {
-    		    categories: [{% for screening in site_screenings %}  '{{ screening.0 }}' , {% endfor %}],
+    		    categories: [{% for screening in site_screenings %}  '{{ screening.site }}' , {% endfor %}],
     		    labels: {
     		      skew3d: true,
     		      style: {
@@ -164,12 +164,12 @@
 
     		  series: [{
     		    name: 'Failed Screening',
-    		    data: [{% for screening in site_screenings %}  {{ screening.1.1 }},  {% endfor %}],
+    		    data: [{% for screening in site_screenings %}  {{ screening.failed }},  {% endfor %}],
     		    stack: 'screening'
     		  },
     		  {
     		    name: 'Passed Screening',
-    		    data: [{% for screening in site_screenings %}  {{ screening.1.0 }},  {% endfor %}],
+    		    data: [{% for screening in site_screenings %}  {{ screening.passed }},  {% endfor %}],
     		    stack: 'screening'
     		  },
     		  ]

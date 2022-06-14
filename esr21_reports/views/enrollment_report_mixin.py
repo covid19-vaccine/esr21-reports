@@ -1,10 +1,17 @@
+import json
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.db.models import Q
 from edc_base.view_mixins import EdcBaseViewMixin
 
+from esr21_reports.models.dashboard_statistics import DashboardStatistics
+from ..models import VaccinationStatistics, EnrollmentStatistics
 
 class EnrollmentReportMixin(EdcBaseViewMixin):
+    
+    vaccination_model =  'esr21_subject.vaccinationdetails'
+    onschedule_model = 'esr21_subject.onschedule'
+
 
     @property
     def vaccination_model_cls(self):
@@ -127,17 +134,21 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
             return self.vaccination_model_cls.objects.filter(
                 Q(received_dose_before=dose) &
                 Q(site_id=site_id)).count()
-
+            
+            
+    @property        
+    def vaccination_details_preprocessor(self):
+        return self.cache_preprocessor('vaccinated_statistics')
+    
+    @property
+    def enrollment_details_preprocessor(self):
+        return self.cache_preprocessor('enrolled_statistics')
+            
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        vaccinated_participants = [
-                self.received_one_doses,
-                self.received_two_doses,
-                self.received_booster_doses,
-        ]
-        context.update(
-            enrolled_participants=self.enrolled_participants,
-            vaccinated_participants=vaccinated_participants
 
+        context.update(
+            enrolled_participants=self.enrollment_details_preprocessor,
+            vaccinated_participants=self.vaccination_details_preprocessor
         )
         return context

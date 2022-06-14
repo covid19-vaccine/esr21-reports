@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.db.models import Q, Count
 from edc_constants.constants import NEG, POS, YES, NO
-
+from ..site_helper_mixin import SiteHelperMixin
 
 class SeriousAdverseEventRecordMixin:
 
@@ -309,11 +309,14 @@ class SeriousAdverseEventRecordMixin:
                 f_town, phikwe, ]
 
     def get_sae_by_site(self, site=None):
-        site_id = self.get_site_id(site)
+        site_helper = SiteHelperMixin()
+
+        site_id = site_helper.get_site_id(site)
         if site_id:
             return self.sae_cls.objects.filter(site_id=site_id)
 
     def get_aei_by_site(self, site=None):
-        site_id = self.get_site_id(site)
+        site_helper = SiteHelperMixin()
+        site_id = site_helper.get_site_id(site)
         if site_id:
             return self.aei_cls.objects.filter(site_id=site_id)
