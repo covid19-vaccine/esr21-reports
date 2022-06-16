@@ -1,4 +1,4 @@
-import orjson as json
+import json
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.db.models import Q

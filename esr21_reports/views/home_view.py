@@ -1,4 +1,4 @@
-import orjson as json 
+import json 
 from django.views.generic import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
