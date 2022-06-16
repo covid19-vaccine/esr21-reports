@@ -29,6 +29,10 @@ class SeriousAdverseEventStatsMixin:
         return self.count_overall_stats_by_week(model_cls, start_date, end_date)
     
     @property
+    def all_sae(self):
+        return self.sae_model_cls.objects.count()
+    
+    @property
     def overall_sae_stats(self):
         overall_stats = []
         for week_date in self.weekly_dates:

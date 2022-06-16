@@ -1,6 +1,5 @@
 from __future__ import with_statement
 from datetime import date
-from operator import sub
 from edc_base.view_mixins import EdcBaseViewMixin
 from esr21_subject.models import *
 from dateutil.relativedelta import relativedelta
@@ -21,13 +20,6 @@ class DemographicsMixin(EdcBaseViewMixin):
     def site_ids(self):
         site_ids = Site.objects.order_by('id').values_list('id', flat=True)
         return site_ids
-
-    @property
-    def enrolled_pids(self):
-        enrolled = VaccinationDetails.objects.filter(
-            received_dose_before='first_dose').values_list(
-            'subject_visit__subject_identifier', flat=True).distinct()
-        return enrolled
 
     @property
     def enrolled_statistics(self):
@@ -154,16 +146,22 @@ class DemographicsMixin(EdcBaseViewMixin):
         for site_id in self.site_ids:
 
             status = POS
-            positive = RapidHIVTesting.objects.filter((Q(subject_visit__subject_identifier__in=self.enrolled_pids) & Q(
-                site_id=site_id)) & (Q(hiv_result=status) | Q(rapid_test_result=status))).count()
+            positive = RapidHIVTesting.objects.filter((
+                Q(subject_visit__subject_identifier__in=self.enrolled_pids) &
+                Q(site_id=site_id)) & (Q(hiv_result=status) |
+                                       Q(rapid_test_result=status))).count()
 
             status = NEG
-            negative = RapidHIVTesting.objects.filter((Q(subject_visit__subject_identifier__in=self.enrolled_pids) & Q(
-                site_id=site_id)) & (Q(hiv_result=status) | Q(rapid_test_result=status))).count()
+            negative = RapidHIVTesting.objects.filter((
+                Q(subject_visit__subject_identifier__in=self.enrolled_pids) &
+                Q(site_id=site_id)) & (Q(hiv_result=status) |
+                                       Q(rapid_test_result=status))).count()
 
             status = IND
-            unknown = RapidHIVTesting.objects.filter((Q(subject_visit__subject_identifier__in=self.enrolled_pids) & Q(
-                site_id=site_id)) & (Q(hiv_result=status) | Q(rapid_test_result=status))).count()
+            unknown = RapidHIVTesting.objects.filter((
+                Q(subject_visit__subject_identifier__in=self.enrolled_pids) &
+                Q(site_id=site_id)) & (Q(hiv_result=status) |
+                                       Q(rapid_test_result=status))).count()
 
             hiv_positive.append(positive)
             hiv_negative.append(negative)
@@ -176,41 +174,6 @@ class DemographicsMixin(EdcBaseViewMixin):
         return [['HIV Positive', *hiv_positive],
                 ['HIV Negative', *hiv_negative],
                 ['Unknown', *hiv_unknown]]
-
-    @property
-    def smoking_statistics(self):
-        never_smoked = []
-        occasional_smoker = []
-        current_smoking = []
-        previous_smoker = []
-
-        for site_id in self.site_ids:
-
-            never_smoked_count = MedicalHistory.objects.filter(site_id=site_id, subject_visit__subject_identifier__in=self.enrolled_pids,
-                                                               smoking_status='never_smoked').values_list('subject_visit__subject_identifier').distinct().count()
-            occasional_smoker_count = MedicalHistory.objects.filter(site_id=site_id, subject_visit__subject_identifier__in=self.enrolled_pids,
-                                                                    smoking_status='occasional_smoker').values_list('subject_visit__subject_identifier').distinct().count()
-            current_smoking_count = MedicalHistory.objects.filter(site_id=site_id, subject_visit__subject_identifier__in=self.enrolled_pids,
-                                                                  smoking_status='current_smoking').values_list('subject_visit__subject_identifier').distinct().count()
-            previous_smoker_count = MedicalHistory.objects.filter(site_id=site_id, subject_visit__subject_identifier__in=self.enrolled_pids,
-                                                                  smoking_status='previous_smoker').values_list('subject_visit__subject_identifier').distinct().count()
-
-            never_smoked.append(never_smoked_count)
-            occasional_smoker.append(occasional_smoker_count)
-            current_smoking.append(current_smoking_count)
-            previous_smoker.append(previous_smoker_count)
-
-        never_smoked.insert(0, sum(never_smoked))
-        occasional_smoker.insert(0, sum(occasional_smoker))
-        current_smoking.insert(0, sum(current_smoking))
-        previous_smoker.insert(0, sum(previous_smoker))
-
-        return [
-            ['Never Smoked', *never_smoked],
-            ['Occasional Smoker', *occasional_smoker],
-            ['Current Smoker', *current_smoking],
-            ['Previous Smoker', *previous_smoker]
-        ]
 
     @property
     def race_statistics(self):
@@ -248,6 +211,13 @@ class DemographicsMixin(EdcBaseViewMixin):
                 ['Other Race', *other_race]]
 
     @property
+    def enrolled_pids(self):
+        enrolled = VaccinationDetails.objects.filter(
+            received_dose_before='first_dose').values_list(
+            'subject_visit__subject_identifier', flat=True).distinct()
+        return enrolled
+
+    @property
     def pregnancy_statistics(self):
         pregnancies = []
         for site_id in self.site_ids:
@@ -262,7 +232,7 @@ class DemographicsMixin(EdcBaseViewMixin):
 
         pregnancies.insert(0, sum(pregnancies))
 
-        return ['Pregnencies', *pregnancies]
+        return ['Pregnancies', *pregnancies]
 
     @property
     def diabates_statistics(self):
@@ -278,68 +248,38 @@ class DemographicsMixin(EdcBaseViewMixin):
         diabetes.insert(0, sum(diabetes))
 
         return ["Diabetes", *diabetes]
-
+    
     @property
-    def alcohol_status_statistics(self):
-
-        never_drunk_alcohol = []
-        previously_drunk_alcohol = []
-        occasionally_drinks_alcohol = []
-        currently_drinks_alcohol = []
-
-        for site_id in self.site_ids:
-
-            never_drunk_alcohol_count = MedicalHistory.objects.filter(
-                site_id=site_id,
-                subject_visit__subject_identifier__in=self.enrolled_pids,
-                alcohol_status='never_drunk_alcohol',).count()
-            never_drunk_alcohol.append(never_drunk_alcohol_count)
-
-            previously_drunk_alcohol_count = MedicalHistory.objects.filter(
-                site_id=site_id,
-                subject_visit__subject_identifier__in=self.enrolled_pids,
-                alcohol_status='previously_drunk_alcohol',).count()
-            previously_drunk_alcohol.append(previously_drunk_alcohol_count)
-
-            occasionally_drinks_alcohol_count = MedicalHistory.objects.filter(
-                site_id=site_id,
-                subject_visit__subject_identifier__in=self.enrolled_pids,
-                alcohol_status='occasionally_drinks_alcohol',).count()
-            occasionally_drinks_alcohol.append(
-                occasionally_drinks_alcohol_count)
-
-            currently_drinks_alcohol_count = MedicalHistory.objects.filter(
-                site_id=site_id,
-                subject_visit__subject_identifier__in=self.enrolled_pids,
-                alcohol_status='currently_drinks_alcohol',).count()
-            currently_drinks_alcohol.append(currently_drinks_alcohol_count)
-
-        never_drunk_alcohol.insert(0, sum(never_drunk_alcohol))
-        previously_drunk_alcohol.insert(0, sum(previously_drunk_alcohol))
-        occasionally_drinks_alcohol.insert(0, sum(occasionally_drinks_alcohol))
-        currently_drinks_alcohol.insert(0, sum(currently_drinks_alcohol))
-
-        return [
-            ["Never drunk alcohol", *never_drunk_alcohol],
-            ["Previously drunk alcohol", *previously_drunk_alcohol],
-            ["Occasionally drinks alcohol", *occasionally_drinks_alcohol],
-            ["Currently drinks alcohol", *currently_drinks_alcohol]
-        ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context.update(
+    def demographics_statistics(self):
+        statistics = dict()
+        
+        statistics.update(
             site_names=self.site_names,
             age_stats=self.age_range_statistics,
-            alcohol_stats=self.alcohol_status_statistics,
             diabates_stats=self.diabates_statistics,
             females_stats=self.females_statistics,
             males_stats=self.males_statistics,
             hiv_stats=self.hiv_statistics,
             pregnency_stats=self.pregnancy_statistics,
             race_stats=self.race_statistics,
-            smoking_stats=self.smoking_statistics,
+        )
+        
+        return statistics
+    
+    @property
+    def demographics_statistics_preprocessor(self):
+        statistics =  self.cache_preprocessor('demographics_statistics')
+        
+        if statistics:
+            return statistics
+        else:
+            return dict()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update(
+            **self.demographics_statistics_preprocessor
         )
 
         return context

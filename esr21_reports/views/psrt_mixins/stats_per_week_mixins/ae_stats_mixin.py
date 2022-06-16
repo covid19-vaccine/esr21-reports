@@ -19,15 +19,15 @@ class AdverseEventStatsMixin:
                     stats.append(site_stats)
             return stats
         return None
-    
+
     def count_aes_stats_by_week(self, site_name_postfix, start_date, end_date):
         model_cls = 'ae_model_cls'
         return self.count_stats_by_week(model_cls, site_name_postfix, start_date, end_date)
-    
+
     def count_overall_aes_stats_by_week(self, start_date, end_date):
         model_cls = 'ae_model_cls'
         return self.count_overall_stats_by_week(model_cls, start_date, end_date)
-    
+
     @property
     def overall_ae_stats(self):
         overall_stats = []
@@ -37,5 +37,8 @@ class AdverseEventStatsMixin:
             weekly_site_stats = self.weekly_aes_stats(start_week_date,end_week_date)
             if weekly_site_stats:
                 overall_stats.append(weekly_site_stats)
-                
         return overall_stats
+
+    @property
+    def all_ae(self):
+        return self.ae_model_cls.objects.count()

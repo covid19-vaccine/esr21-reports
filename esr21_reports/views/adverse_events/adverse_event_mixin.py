@@ -1,10 +1,12 @@
 from django.apps import apps as django_apps
 from django.db.models import Q, Count
 from edc_constants.constants import NEG, POS, YES, NO
+from ..site_helper_mixin import SiteHelperMixin
 
 
 class AdverseEventRecordMixin:
     ae_record_model = 'esr21_subject.adverseeventrecord'
+    ae_model = 'esr21_subject.adverseevent'
     rapid_hiv_testing_model = 'esr21_subject.rapidhivtesting'
     vaccination_detail_model = 'esr21_subject.vaccinationdetails'
     consent_model = 'esr21_subject.informedconsent'
@@ -13,6 +15,10 @@ class AdverseEventRecordMixin:
     @property
     def ae_record_cls(self):
         return django_apps.get_model(self.ae_record_model)
+
+    @property
+    def ae_cls(self):
+        return django_apps.get_model(self.ae_model)
 
     @property
     def vaccination_detail_cls(self):
@@ -187,22 +193,23 @@ class AdverseEventRecordMixin:
             return self.rapid_hiv_testing_cls.objects.get(
                 subject_visit__subject_identifier=subject_identifier,)
         except self.rapid_hiv_testing_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def consent(self, subject_identifier):
         try:
-            return self.consent_cls.objects.get(subject_identifier=subject_identifier)
+            return self.consent_cls.objects.filter(
+                subject_identifier=subject_identifier).latest('consent_datetime')
         except self.consent_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def sae_record(self, subject_identifier):
         try:
-            return self.sae_record_cls.objects.get(
+            return self.sae_record_cls.objects.filter(
                 serious_adverse_event__subject_visit__subject_identifier=subject_identifier)
         except self.sae_record_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def vaccination_record(self, subject_identifier, dose):
@@ -211,7 +218,7 @@ class AdverseEventRecordMixin:
                 subject_visit__subject_identifier=subject_identifier,
                 received_dose_before=dose)
         except self.vaccination_detail_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def demographics_record(self, subject_identifier):
@@ -219,6 +226,23 @@ class AdverseEventRecordMixin:
             return self.demographics_data_cls.objects.get(
                 subject_visit__subject_identifier=subject_identifier)
         except self.demographics_data_cls.DoesNotExist:
-                pass
+            pass
         return None
 
+    @property
+    def ae_overall(self):
+        overall = self.ae_cls.objects.count()
+        gaborone = self.get_adverse_event_by_site('Gaborone').count()
+        maun = self.get_adverse_event_by_site('Maun').count()
+        serowe = self.get_adverse_event_by_site('Serowe').count()
+        f_town = self.get_adverse_event_by_site('Francistown').count()
+        phikwe = self.get_adverse_event_by_site('Phikwe').count()
+
+        return ['Adverse Events', overall, gaborone, maun, serowe,
+                f_town, phikwe, ]
+
+    def get_adverse_event_by_site(self, site=None):
+        site_helper = SiteHelperMixin()
+        site_id = site_helper.get_site_id(site)
+        if site_id:
+            return self.ae_cls.objects.filter(site_id=site_id)

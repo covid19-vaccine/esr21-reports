@@ -71,7 +71,7 @@
 						text: 'Total enrolled regardless of gender'
 					},
 					xAxis: [{
-						categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'S/Phikwe', 'All Sites'],
+						categories: {{  site_names | safe }},
 						crosshair: true
 					}],
 					yAxis: [{ // Primary yAxis
@@ -174,7 +174,7 @@
 			             description: 'Study Site',
 
 			           },
-			           categories:  [{% for name in site_names %}  '{{ name }}', {% endfor %}],
+			           categories: {{ site_names | safe }},
 			         },
 	
 			         tooltip: {
@@ -226,7 +226,7 @@
 			                 itemWidth: 150
 			               },
 			               xAxis: {
-			                 categories: [{% for name in site_names %}  '{{ name }}', {% endfor %}],
+			                 categories: {{ site_names | safe }},
 			                 title: ''
 			               },
 			               yAxis: {

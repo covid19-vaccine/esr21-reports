@@ -20,8 +20,11 @@ class AESpecialInterestStatsMixin:
                     stats.append(site_stats)
             return stats
         return None
-    
-    
+
+    @property
+    def all_aesi(self):
+        return self.aesi_model_cls.objects.count()
+
     def count_aesi_stats_by_week(self, site_name_postfix, start_date, end_date):
         model_cls = 'aesi_model_cls'
         return self.count_stats_by_week(model_cls, site_name_postfix, start_date, end_date)

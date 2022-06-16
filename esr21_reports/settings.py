@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 
-from esr21.esr21.settings import APP_NAME
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +29,6 @@ ALLOWED_HOSTS = []
 ETC_DIR = '/etc/'
 
 APP_NAME = 'esr21_reports'
-
 
 # Application definition
 

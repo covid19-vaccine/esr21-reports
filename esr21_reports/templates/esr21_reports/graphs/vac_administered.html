@@ -65,7 +65,7 @@
                     text: 'First & Second Dose Administered across all sites'
                 },
                 xAxis: {
-                    categories: ['First Dose', 'Second Dose'],
+                    categories: ['First Dose', 'Second Dose', 'Booster Dose'],
                     title: {
                         text: null
                     }
@@ -150,10 +150,10 @@
                 },
                 series: [{
                     name: 'First Dose',
-                    data: {{vac_details_first_dose}}
+                    data: {{ vac_details_first }}
                 }, {
                     name: 'Second Dose',
-                    data: {{vac_details_second_dose}}
+                    data: {{ vac_details_second }}
                 },]
             });
         </script>
