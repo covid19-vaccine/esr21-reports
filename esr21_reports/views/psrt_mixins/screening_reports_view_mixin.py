@@ -165,11 +165,16 @@ class ScreeningReportsViewMixin(EdcBaseViewMixin):
                             else:
                                 data.append([fail.site_id, 'Pregnant'])
         return data
+    
+    @property
+    def screening_statistics_preprocessor(self):
+        statistics =  self.cache_preprocessor('screening_statistics')
+        return statistics
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            screening_data=self.total_screened_participants,
+            screening_data=self.screening_statistics_preprocessor,
         )
         return context
 
