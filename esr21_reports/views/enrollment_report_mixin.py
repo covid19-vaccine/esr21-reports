@@ -70,7 +70,8 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
             ['Enrolled', overall, gaborone, maun, serowe, f_town, phikwe],
             self.main_cohort_participants,
             self.sub_cohort_participants,
-            self.pregnant_enrollment
+            self.pregnant_enrollment,
+            self.covid_positives,
             ]
 
     @property
