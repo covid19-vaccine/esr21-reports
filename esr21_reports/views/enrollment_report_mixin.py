@@ -111,8 +111,18 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
 
     @property
     def sub_cohort_participants(self):
-        totals = self.cohort_participants('esr21_sub_enrol_schedule')
-        return ['Sub cohort', *totals]
+        totals = list()
+        for site_id in range(40, 45):
+            onschedule = self.onschedule_model_cls.objects.filter(
+                schedule_name__startswith='esr21_sub', site_id=site_id).values_list(
+                    'subject_identifier', flat=True).distinct()
+            vacc = self.vaccination_model_cls.objects.filter(
+                received_dose='Yes', subject_visit__subject_identifier__in=onschedule).values_list(
+                    'subject_visit__subject_identifier').distinct().count()
+            totals.append(vacc)
+                
+            
+        return ['Sub cohort', sum(totals), *totals]
 
     def get_enrolled_by_site(self, site_name_postfix):
         site_id = self.get_site_id(site_name_postfix)
