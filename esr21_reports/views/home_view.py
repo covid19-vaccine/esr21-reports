@@ -11,9 +11,7 @@ from .adverse_events import (
     SeriousAdverseEventRecordViewMixin)
 from .psrt_mixins import (
     DemographicsMixin,
-    ScreeningReportsViewMixin,
-    SummaryQueriesMixin,
-    StatsPerWeekMixin)
+    ScreeningReportsViewMixin)
 
 
 class HomeView(
@@ -22,8 +20,6 @@ class HomeView(
             SiteHelperMixin,
             ScreeningReportsViewMixin,
             EnrollmentReportMixin,
-            SummaryQueriesMixin,
-            StatsPerWeekMixin,
             DemographicsMixin,
             NavbarViewMixin,
             EdcBaseViewMixin,
