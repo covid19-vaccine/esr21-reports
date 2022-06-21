@@ -11,15 +11,47 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
     
     vaccination_model =  'esr21_subject.vaccinationdetails'
     onschedule_model = 'esr21_subject.onschedule'
-
+    pregnancy_test_model = 'esr21_subject.pregnancytest'
+    covid_19_results_model = 'esr21_subject.covid19results'
 
     @property
     def vaccination_model_cls(self):
         return django_apps.get_model(self.vaccination_model)
+    
+    @property
+    def pregnancy_test_cls(self):
+        return django_apps.get_model(self.pregnancy_test_model)
 
     @property
     def onschedule_model_cls(self):
         return django_apps.get_model(self.onschedule_model)
+    
+    @property    
+    def covid_19_results_cls(self):
+        return django_apps.get_model(self.covid_19_results_model)
+    
+    @property
+    def pregnant_enrollment(self):
+        ids = self.vaccination_model_cls.objects.filter(received_dose_before='first_dose').values_list('subject_visit__subject_identifier', flat=True).distinct()
+        totals = []
+        for site_id in range(40, 45):
+            total = self.pregnancy_test_cls.objects.filter(
+                result='POS',site_id=site_id, subject_visit__subject_identifier__in=ids).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
+            totals.append(total)
+            
+        return ['Pregnant Enrollment', sum(totals), *totals]
+    
+    @property
+    def covid_positives(self):
+        totals = []
+        for site_id in range(40, 45):
+            total =  self.covid_19_results_cls.objects.filter(
+                covid_result='POS', subject_visit__subject_identifier__startswith=f'150-0{site_id}').count()
+            totals.append(total)
+        
+        return ['COVID Positives', sum(totals), *totals]
+
+
 
     @property
     def enrolled_participants(self):
@@ -30,11 +62,15 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
         serowe = self.get_enrolled_by_site('Serowe').count()
         f_town = self.get_enrolled_by_site('Francistown').count()
         phikwe = self.get_enrolled_by_site('Phikwe').count()
+        
+        
+        
 
         return [
             ['Enrolled', overall, gaborone, maun, serowe, f_town, phikwe],
             self.main_cohort_participants,
-            self.sub_cohort_participants
+            self.sub_cohort_participants,
+            self.pregnant_enrollment
             ]
 
     @property
