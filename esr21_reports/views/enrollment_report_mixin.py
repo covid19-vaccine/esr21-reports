@@ -65,16 +65,18 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
 
     @property
     def received_booster_doses(self):
-        overall = self.vaccination_model_cls.objects.filter(
-            Q(received_dose_before='booster_dose')).count()
-        gaborone = self.get_vaccination_by_site('Gaborone', dose='booster_dose')
-        maun = self.get_vaccination_by_site('Maun', dose='booster_dose')
-        serowe = self.get_vaccination_by_site('Serowe', dose='booster_dose')
-        f_town = self.get_vaccination_by_site('Francistown', dose='booster_dose')
-        phikwe = self.get_vaccination_by_site('Phikwe', dose='booster_dose')
+        
+        totals = list()
+                
+        vaccinated = self.vaccination_model_cls.objects.values_list('subject_visit__subject_identifier', flat=True).distinct()
+        
+        for site_id in range(40, 45):
+            total_booster = self.vaccination_model_cls.objects.filter(
+                received_dose_before='booster_dose', site_id=site_id, subject_visit__subject_identifier__in=vaccinated).values_list(
+                    'subject_visit__subject_identifier', flat=True).distinct().count()
+            totals.append(total_booster)
 
-        return ['Booster dose', overall, gaborone,
-                maun, serowe, f_town, phikwe]
+        return ['Booster dose', sum(totals), *totals]
 
     def cohort_participants(self, cohort=None):
         on_schedule = self.onschedule_model_cls.objects.filter(
