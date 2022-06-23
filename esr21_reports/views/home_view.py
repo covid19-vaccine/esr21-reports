@@ -41,7 +41,7 @@ class HomeView(
         
         if HomeView.lock.locked():
             return
-        
+
         HomeView.lock.acquire()
         HomeView.user_generation_data = self.request.user.username
         call_command('populate_graphs')
