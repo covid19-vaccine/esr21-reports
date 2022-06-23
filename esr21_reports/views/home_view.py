@@ -1,4 +1,5 @@
 import configparser
+from datetime import datetime, timezone
 import json
 import threading
 from django.core.management import call_command
@@ -43,6 +44,7 @@ class HomeView(
             return
         
         HomeView.lock.acquire()
+        HomeView.is_loading = True
         HomeView.user_generation_data = self.request.user.username
         call_command('populate_graphs')
         
@@ -67,13 +69,17 @@ class HomeView(
                 from_email=config['email_conf'].get('email_user')
         )
         
+
+        
         HomeView.lock.release()
     
     
     def post(self, request, *args, **kwargs):
         generate = request.POST.get('generate', None)
         
-        if generate:
+        updated_time_difference = datetime.now(timezone.utc) -  self.last_updated_at
+        
+        if generate and updated_time_difference.seconds > 10:
             thread = threading.Thread(target=self.generate_reports, daemon=True)
             thread.start()
         
