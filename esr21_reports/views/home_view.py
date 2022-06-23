@@ -1,4 +1,4 @@
-import orjson as json 
+import orjson as json
 from django.views.generic import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
@@ -11,9 +11,7 @@ from .adverse_events import (
     SeriousAdverseEventRecordViewMixin)
 from .psrt_mixins import (
     DemographicsMixin,
-    ScreeningReportsViewMixin,
-    SummaryQueriesMixin,
-    StatsPerWeekMixin)
+    ScreeningReportsViewMixin)
 
 
 class HomeView(
@@ -22,8 +20,6 @@ class HomeView(
             SiteHelperMixin,
             ScreeningReportsViewMixin,
             EnrollmentReportMixin,
-            SummaryQueriesMixin,
-            StatsPerWeekMixin,
             DemographicsMixin,
             NavbarViewMixin,
             EdcBaseViewMixin,
@@ -31,17 +27,15 @@ class HomeView(
     template_name = 'esr21_reports/home.html'
     navbar_selected_item = 'Reports'
     navbar_name = 'esr21_reports'
-    
+
     def cache_preprocessor(self, key):
         statistics = None
-        
         try:
             dashboard_statistics = DashboardStatistics.objects.get(key=key)
         except DashboardStatistics.DoesNotExist:
             pass
         else:
-            statistics =  json.loads(dashboard_statistics.value)
-        
+            statistics = json.loads(dashboard_statistics.value)
         return statistics
 
     def get_context_data(self, **kwargs):
