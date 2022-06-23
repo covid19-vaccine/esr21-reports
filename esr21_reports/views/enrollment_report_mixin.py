@@ -3,21 +3,29 @@ from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.db.models import Q
 from edc_base.view_mixins import EdcBaseViewMixin
+from ..models import VaccinationEnrollments
 
 from esr21_reports.models.dashboard_statistics import DashboardStatistics
 from ..models import VaccinationStatistics, EnrollmentStatistics
 
+
 class EnrollmentReportMixin(EdcBaseViewMixin):
-    
-    vaccination_model =  'esr21_subject.vaccinationdetails'
+
+    vaccination_model = 'esr21_subject.vaccinationdetails'
+    vaccination_history_model = 'esr21_subject.vaccinationhistory'
     onschedule_model = 'esr21_subject.onschedule'
     pregnancy_test_model = 'esr21_subject.pregnancytest'
     covid_19_results_model = 'esr21_subject.covid19results'
+    vaccination_history_model = 'esr21_subject.vaccinationhistory'
 
     @property
     def vaccination_model_cls(self):
         return django_apps.get_model(self.vaccination_model)
-    
+
+    @property
+    def vaccination_history_cls(self):
+        return django_apps.get_model(self.vaccination_history_model)
+
     @property
     def pregnancy_test_cls(self):
         return django_apps.get_model(self.pregnancy_test_model)
@@ -25,33 +33,53 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
     @property
     def onschedule_model_cls(self):
         return django_apps.get_model(self.onschedule_model)
-    
-    @property    
+
+    @property
     def covid_19_results_cls(self):
         return django_apps.get_model(self.covid_19_results_model)
-    
+
     @property
     def pregnant_enrollment(self):
-        ids = self.vaccination_model_cls.objects.filter(received_dose_before='first_dose').values_list('subject_visit__subject_identifier', flat=True).distinct()
+        ids = self.vaccination_model_cls.objects.filter(
+            received_dose_before='first_dose').values_list(
+            'subject_visit__subject_identifier', flat=True).distinct()
         totals = []
         for site_id in range(40, 45):
             total = self.pregnancy_test_cls.objects.filter(
-                result='POS',site_id=site_id, subject_visit__subject_identifier__in=ids).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
+                result='POS', site_id=site_id,
+                subject_visit__subject_identifier__in=ids).values_list(
+                    'subject_visit__subject_identifier', flat=True).distinct().count()
             totals.append(total)
-            
+
         return ['Pregnant Enrollment', sum(totals), *totals]
-    
+
     @property
     def covid_positives(self):
         totals = []
         for site_id in range(40, 45):
-            total =  self.covid_19_results_cls.objects.filter(
-                covid_result='POS', subject_visit__subject_identifier__startswith=f'150-0{site_id}').count()
+            total = self.covid_19_results_cls.objects.filter(
+                covid_result='POS',
+                subject_visit__subject_identifier__startswith=f'150-0{site_id}').count()
             totals.append(total)
-        
+
         return ['COVID Positives', sum(totals), *totals]
 
+    @property
+    def vaccination_at_enrollment(self):
+        totals = []
 
+        ids = self.vaccination_history_cls.objects.filter(Q(dose_quantity=1)).exclude(
+            Q(dose1_product_name='azd_1222')).values_list('subject_identifier', flat=True)
+
+        for site_id in range(40, 45):
+            total_second_dose = self.vaccination_model_cls.objects.filter(
+                site_id=site_id,
+                received_dose_before='second_dose',
+                subject_visit__subject_identifier__in=ids).values_list(
+                    'subject_visit__subject_identifier', flat=True).distinct().count()
+            totals.append(total_second_dose)
+
+        return ['Vaccination Enrollment', sum(totals), *totals]
 
     @property
     def enrolled_participants(self):
@@ -62,9 +90,6 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
         serowe = self.get_enrolled_by_site('Serowe').count()
         f_town = self.get_enrolled_by_site('Francistown').count()
         phikwe = self.get_enrolled_by_site('Phikwe').count()
-        
-        
-        
 
         return [
             ['Enrolled', overall, gaborone, maun, serowe, f_town, phikwe],
@@ -72,7 +97,8 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
             self.sub_cohort_participants,
             self.pregnant_enrollment,
             self.covid_positives,
-            ]
+            self.vaccination_at_enrollment,
+        ]
 
     @property
     def received_two_doses(self):
@@ -81,7 +107,8 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
         gaborone = self.get_vaccination_by_site('Gaborone', dose='second_dose')
         maun = self.get_vaccination_by_site('Maun', dose='second_dose')
         serowe = self.get_vaccination_by_site('Serowe', dose='second_dose')
-        f_town = self.get_vaccination_by_site('Francistown', dose='second_dose')
+        f_town = self.get_vaccination_by_site(
+            'Francistown', dose='second_dose')
         phikwe = self.get_vaccination_by_site('Phikwe', dose='second_dose')
 
         return ['Second dose', overall, gaborone,
@@ -102,11 +129,11 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
 
     @property
     def received_booster_doses(self):
-        
         totals = list()
-                
-        vaccinated = self.vaccination_model_cls.objects.values_list('subject_visit__subject_identifier', flat=True).distinct()
-        
+
+        vaccinated = self.vaccination_model_cls.objects.values_list(
+            'subject_visit__subject_identifier', flat=True).distinct()
+
         for site_id in range(40, 45):
             total_booster = self.vaccination_model_cls.objects.filter(
                 received_dose_before='booster_dose', site_id=site_id, subject_visit__subject_identifier__in=vaccinated).values_list(
@@ -156,11 +183,11 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
                 schedule_name__startswith='esr21_sub', site_id=site_id).values_list(
                     'subject_identifier', flat=True).distinct()
             vacc = self.vaccination_model_cls.objects.filter(
-                received_dose='Yes', subject_visit__subject_identifier__in=onschedule).values_list(
+                received_dose='Yes',
+                subject_visit__subject_identifier__in=onschedule).values_list(
                     'subject_visit__subject_identifier').distinct().count()
             totals.append(vacc)
-                
-            
+
         return ['Sub cohort', sum(totals), *totals]
 
     def get_enrolled_by_site(self, site_name_postfix):
@@ -183,21 +210,145 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
             return self.vaccination_model_cls.objects.filter(
                 Q(received_dose_before=dose) &
                 Q(site_id=site_id)).count()
-            
-            
-    @property        
+
+    def seond_dose_enrollments_elsewhere(self):
+        sinovac_ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=1, dose1_product_name='sinovac'
+            ).values_list('subject_identifier', flat=True)
+
+        total_sinovac = self.vaccination_model_cls.objects.filter(
+            received_dose_before='second_dose',
+            subject_visit__subject_identifier__in=sinovac_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        pfizer_ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=1, dose1_product_name='pfizer').values_list(
+                'subject_identifier', flat=True)
+
+        pfizer_total = self.vaccination_model_cls.objects.filter(
+            received_dose_before='second_dose',
+            subject_visit__subject_identifier__in=pfizer_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        moderna_ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=1,dose1_product_name='moderna'
+            ).values_list('subject_identifier', flat=True)
+
+        moderna_totals = self.vaccination_model_cls.objects.filter(
+            received_dose_before='second_dose',
+            subject_visit__subject_identifier__in=moderna_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        jansen_ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=1, dose1_product_name='janssen'
+            ).values_list('subject_identifier', flat=True)
+
+        jansen_totals = self.vaccination_model_cls.objects.filter(
+            received_dose_before='second_dose',
+            subject_visit__subject_identifier__in=jansen_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        astrazaneca_ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=1,dose1_product_name='astrazeneca'
+            ).values_list('subject_identifier', flat=True)
+        astraz_totals = self.vaccination_model_cls.objects.filter(
+            received_dose_before='second_dose',
+            subject_visit__subject_identifier__in=astrazaneca_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+        return ['Second dose(first dose elsewhere)', total_sinovac,
+                pfizer_total, moderna_totals, jansen_totals, astraz_totals ]
+
+    def booster_enrollment_elsewhere(self):
+        sinovac_ids = self.vaccination_history_cls.objects.filter(
+            Q(dose_quantity=2) & (Q(dose1_product_name='sinovac')
+                                  | Q(dose2_product_name='sinovac'))
+            ).values_list('subject_identifier', flat=True)
+
+        total_sinovac = self.vaccination_model_cls.objects.filter(
+            received_dose_before='booster_dose',
+            subject_visit__subject_identifier__in=sinovac_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        pfizer_ids = self.vaccination_history_cls.objects.filter(
+             Q(dose_quantity=2) & (Q(dose1_product_name='pfizer')
+                                   | Q(dose2_product_name='pfizer'))
+             ).values_list(
+                'subject_identifier', flat=True)
+
+        pfizer_total = self.vaccination_model_cls.objects.filter(
+            received_dose_before='booster_dose',
+            subject_visit__subject_identifier__in=pfizer_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        moderna_ids = self.vaccination_history_cls.objects.filter(
+            Q(dose_quantity=2) & (Q(dose1_product_name='moderna')
+                                  | Q(dose2_product_name='moderna'))
+            ).values_list('subject_identifier', flat=True)
+
+        moderna_totals = self.vaccination_model_cls.objects.filter(
+            received_dose_before='booster_dose',
+            subject_visit__subject_identifier__in=moderna_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        jansen_ids = self.vaccination_history_cls.objects.filter(
+             Q(dose_quantity=2) & (Q(dose1_product_name='janssen')
+                                   | Q(dose2_product_name='janssen'))
+            ).values_list('subject_identifier', flat=True)
+
+        jansen_totals = self.vaccination_model_cls.objects.filter(
+            received_dose_before='booster_dose',
+            subject_visit__subject_identifier__in=jansen_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        astrazaneca_ids = self.vaccination_history_cls.objects.filter(
+             Q(dose_quantity=2) & (Q(dose1_product_name='astrazeneca')
+                                   | Q(dose2_product_name='astrazeneca'))
+            ).values_list('subject_identifier', flat=True)
+
+        astraz_totals = self.vaccination_model_cls.objects.filter(
+            received_dose_before='booster_dose',
+            subject_visit__subject_identifier__in=astrazaneca_ids
+            ).values_list('subject_visit__subject_identifier',
+                          flat=True).distinct().count()
+
+        return ['Booster dose (second dose elsewhere)', total_sinovac,
+                pfizer_total, moderna_totals, jansen_totals, astraz_totals ]
+
+    @property
     def vaccination_details_preprocessor(self):
         return self.cache_preprocessor('vaccinated_statistics')
-    
+
     @property
     def enrollment_details_preprocessor(self):
         return self.cache_preprocessor('enrolled_statistics')
-            
+
+    @property
+    def total_2nd_booster_enrollments(self):
+        doses = VaccinationEnrollments.objects.all()
+        total_doses = []
+        for dose in doses:
+            total = dose.sinovac+dose.pfizer+dose.astrazeneca
+            +dose.moderna+dose.janssen
+            total_doses.append([dose.variable, dose.sinovac, dose.pfizer,
+                                dose.astrazeneca, dose.moderna, dose.janssen,
+                                total])
+        return total_doses
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context.update(
             enrolled_participants=self.enrollment_details_preprocessor,
-            vaccinated_participants=self.vaccination_details_preprocessor
+            vaccinated_participants=self.vaccination_details_preprocessor,
+            second_booster_enrollments=self.total_2nd_booster_enrollments
         )
         return context

@@ -3,3 +3,4 @@ from .enrollment_statistics import EnrollmentStatistics
 from .screening_statistics import ScreeningStatistics
 from .vaccination_statistics import VaccinationStatistics
 from .dashboard_statistics import DashboardStatistics
+from .vaccination_enrollments import VaccinationEnrollments
