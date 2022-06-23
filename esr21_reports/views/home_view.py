@@ -68,20 +68,15 @@ class HomeView(
         )
         
         HomeView.lock.release()
-
-
-        
-        
-        
-        
     
-    def get(self, request, *args, **kwargs):
-        generate = request.GET.get('generate', None)
+    
+    def post(self, request, *args, **kwargs):
+        generate = request.POST.get('generate', None)
         
         if generate:
             thread = threading.Thread(target=self.generate_reports, daemon=True)
             thread.start()
-            
+        
         return super().get(request, *args, **kwargs)
 
     def cache_preprocessor(self, key):
