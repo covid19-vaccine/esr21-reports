@@ -35,7 +35,7 @@
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-text mx-3">ESR21 Reports</div>
             </a>
-
+           
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
@@ -62,23 +62,8 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" >
-                    <i class="fas fa-fw fa-wrench"></i>
-                    <span>Charts</span>
-                </a>
-                
-            </li>
-
             <!-- Divider -->
             <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Addons
-            </div>
-
             <!-- Nav Item - Charts -->
             <li class="nav-item">
                 <a class="nav-link" href="/esr21_reports/lab">
@@ -163,7 +148,9 @@
                         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
                     </div>
-
+                    <div class="alert alert-success" role="alert">
+                        Last updated {{ updated_at }}
+                    </div>
                     <!-- Content Row -->
                     <div class="row">
 

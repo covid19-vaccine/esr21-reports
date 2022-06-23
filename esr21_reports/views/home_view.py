@@ -1,4 +1,4 @@
-import orjson as json
+import json
 from django.views.generic import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
@@ -38,6 +38,18 @@ class HomeView(
             statistics = json.loads(dashboard_statistics.value)
         return statistics
 
+    @property
+    def last_updated_at(self):
+        try:
+            dashboard_statistics = DashboardStatistics.objects.latest('modified')
+        except DashboardStatistics.DoesNotExist:
+            pass
+        else:
+            return dashboard_statistics.modified
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(
+            updated_at=self.last_updated_at
+        )
         return context
