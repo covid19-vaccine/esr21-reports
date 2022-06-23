@@ -84,7 +84,7 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
     def booster_dose_at_enrollment(self):
         totals = []
 
-        ids = self.vaccination_history_cls.objects.filter(dose_quantity=2, site_id=site_id).exclude(
+        ids = self.vaccination_history_cls.objects.filter(dose_quantity=2).exclude(
             Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
                 'subject_identifier', flat=True)
 

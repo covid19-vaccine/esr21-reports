@@ -148,7 +148,7 @@
                         <form action="" method="post">
                             {% csrf_token %}
                             <button name="generate" value="True" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Generate Report</button>
+                                class="fas fa-download fa-sm text-white-50"></i> Refresh Report</button>
                         </form>
                         
                     </div>
@@ -628,6 +628,14 @@
             $('#dataTable2').DataTable();
             $('#dataTable1').DataTable();
         });
+
+        {% if is_loading %}
+
+            setTimeout(function() {
+                location.reload(true);
+            }, 1000 * 60 * 3 );
+            
+        {% endif %}
     </script>
 
 </body>
