@@ -223,6 +223,28 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Booster Dose</div>
+                                            {% for  vd in vaccinated_participants %}
+                                                {% if 'Booster dose' == vd.0 %}
+                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{vd.1 }}</div>
+                                                {% endif %}
+                                                    
+                                            {% endfor %}
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="row">
 
@@ -234,7 +256,7 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                                 Adverse Events</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_ae }}</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ ae_overall_count.1}}</div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
@@ -252,7 +274,7 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                                 Serious Adverse Events</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_sae }}</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sae_overall_count.1 }}</div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
@@ -270,7 +292,7 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                                 Adverse Events of Special Interest</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_aesi }}</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ aei_overall.1 }}</div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
@@ -279,6 +301,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        
 
                     </div>
                     <div class="row">
