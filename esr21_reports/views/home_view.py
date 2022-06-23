@@ -42,7 +42,7 @@ class HomeView(
         
         if HomeView.lock.locked():
             return
-        
+
         HomeView.lock.acquire()
         HomeView.is_loading = True
         HomeView.user_generation_data = self.request.user.username

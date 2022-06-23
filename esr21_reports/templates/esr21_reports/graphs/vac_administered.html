@@ -115,7 +115,7 @@
                     type: 'column'
                 },
                 title: {
-                    text: 'First & Second Dose Administered by study site'
+                    text: 'First, Second and Booster Dose Administered by study site'
                 },
                 xAxis: {
                     categories: [
@@ -154,6 +154,10 @@
                 }, {
                     name: 'Second Dose',
                     data: {{ vac_details_second }}
+                },
+                {
+                    name: 'Booster Dose',
+                    data: {{ booster_dose_count }}
                 },]
             });
         </script>
