@@ -63,7 +63,7 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
         return ['COVID Positives', sum(totals), *totals]
 
     @property
-    def vaccination_at_enrollment(self):
+    def second_dose_at_enrollment(self):
         totals = []
 
         ids = self.vaccination_history_cls.objects.filter(Q(dose_quantity=1)).exclude(
@@ -77,7 +77,26 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
                     'subject_visit__subject_identifier', flat=True).distinct().count()
             totals.append(total_second_dose)
 
-        return ['Vaccination Enrollment', sum(totals), *totals]
+        return ['Second dose at enrollment', sum(totals), *totals]
+    
+    
+    @property
+    def booster_dose_at_enrollment(self):
+        totals = []
+
+        ids = self.vaccination_history_cls.objects.filter(dose_quantity=2, site_id=site_id).exclude(
+            Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
+                'subject_identifier', flat=True)
+
+
+        for site_id in range(40, 45):
+            total_booster = self.vaccination_model_cls.objects.filter(
+                site_id=site_id,
+                received_dose_before='booster_dose',subject_visit__subject_identifier__in=ids).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
+
+            totals.append(total_booster)
+
+        return ['Booster dose at enrollment', sum(totals), *totals]
 
     @property
     def enrolled_participants(self):
@@ -95,7 +114,8 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
             self.sub_cohort_participants,
             self.pregnant_enrollment,
             self.covid_positives,
-            self.vaccination_at_enrollment,
+            self.second_dose_at_enrollment,
+            self.booster_dose_at_enrollment,
         ]
 
     @property
