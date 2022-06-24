@@ -9,9 +9,6 @@ from edc_constants.constants import FEMALE, MALE
 class EnrollmentGraphMixin(EdcBaseViewMixin):
 
     enrollment_stats_model = 'esr21_reports.enrollmentstatistics'
-    
-    
-
 
     @property
     def enrollment_stats_cls(self):
