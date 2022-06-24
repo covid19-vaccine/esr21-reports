@@ -632,7 +632,7 @@
         {% if is_loading %}
 
             setTimeout(function() {
-                location.reload(true);
+                document.location.href = '/esr21_reports'
             }, 1000 * 60 );
             
         {% endif %}
