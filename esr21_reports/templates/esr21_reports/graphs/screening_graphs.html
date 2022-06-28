@@ -48,132 +48,134 @@
 	}
 </style>
 <div class="row">
-<div class="col-md-6">
-		    <figure class="highcharts-figure">
-			  <div id="pieChart"></div>
-			  <p class="highcharts-description">
-			    The Pie chart should a comparison of participants who have failed screening and those who passed screening. Those who passed screening is everyone who is enrolled.
-			  </p>
-			</figure>
-	       <script>
-       Highcharts.chart('pieChart', {
-    	   colors: ['#2f7ed8','#910000', ],
-    	   chart: {
-    	     type: 'pie',
-    	     options3d: {
-    	       enabled: true,
-    	       alpha: 45,
-    	       beta: 0
-    	     }
-    	   },
-    	   title: {
-    	     text: 'Total Screened Participants'
-    	   },
-    	   accessibility: {
-    	     point: {
-    	       valueSuffix: '%'
-    	     }
-    	   },
-    	   tooltip: {
-    	     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-    	   },
-    	   plotOptions: {
-    	     pie: {
-    	       allowPointSelect: true,
-    	       cursor: 'pointer',
-    	       depth: 35,
-    	       dataLabels: {
-    	         enabled: true,
-    	         format: '{point.name}'
-    	       }
-    	     }
-    	   },
-    	   series: [{
-    	     type: 'pie',
-    	     name: 'Total',
-    	     data: [
-    	       ['Passed Screening', {{ overall_screened.0 }}],
-    	       {
-    	         name: 'Failed Screening',
-    	         y: {{ overall_screened.1 }},
-    	         sliced: true,
-    	         selected: true
-    	       },
-    	       
-    	     ]
-    	   }]
-    	 });
-	   </script>
-</div>
-   <div class="col-md-6">
-   <figure class="highcharts-figure">
-  <div id="barchart"></div>
-  <p class="highcharts-description">
-    Chart showing grouped and stacked screening per site. The graph still shows a comparisom at site level those who passed screening against those who failed screening.
-  </p>
-</figure>
-   	<script>
-    	Highcharts.chart('barchart', {
-    		colors: ['#910000','#2f7ed8', ],
-    		  chart: {
-    		    type: 'column',
-    		    options3d: {
-    		      enabled: true,
-    		      alpha: 15,
-    		      beta: 15,
-    		      viewDistance: 25,
-    		      depth: 40
-    		    }
-    		  },
-
-    		  title: {
-    		    text: 'Screened Participants per Site'
-    		  },
-
-    		  xAxis: {
-    		    categories: [{% for screening in site_screenings %}  '{{ screening.site }}' , {% endfor %}],
-    		    labels: {
-    		      skew3d: true,
-    		      style: {
-    		        fontSize: '16px'
-    		      }
-    		    }
-    		  },
-
-    		  yAxis: {
-    		    allowDecimals: false,
-    		    min: 0,
-    		    max: 100,
-    		    title: {
-    		      text: 'Percentage',
-    		      skew3d: true
-    		    }
-    		  },
-
-    		  tooltip: {
-    		    headerFormat: '<b>{point.key}</b><br>',
-    		    pointFormat: '<span style="color:{series.color}">\u25CF</span> {series.name}: {point.y} / {point.stackTotal}'
-    		  },
-
-    		  plotOptions: {
-    		    column: {
-    		      stacking: 'normal',
-    		      depth: 40
-    		    }
-    		  },
-
-    		  series: [{
-    		    name: 'Failed Screening',
-    		    data: [{% for screening in site_screenings %}  {{ screening.failed }},  {% endfor %}],
-    		    stack: 'screening'
-    		  },
-    		  {
-    		    name: 'Passed Screening',
-    		    data: [{% for screening in site_screenings %}  {{ screening.passed }},  {% endfor %}],
-    		    stack: 'screening'
-    		  },
-    		  ]
-    		});
-   	</script>
-    </div>
+	<div class="col-md-6">
+		<figure class="highcharts-figure">
+			<div id="container"></div>
+			<p class="highcharts-description">
+			  Pie charts are very popular for showing a compact overview of a
+			  composition or comparison. While they can be harder to read than
+			  column charts, they remain a popular choice for small datasets.
+			</p>
+		  </figure>
+		  <script>
+			Highcharts.chart('container', {
+				chart: {
+				  plotBackgroundColor: null,
+				  plotBorderWidth: null,
+				  plotShadow: false,
+				  type: 'pie'
+				},
+				title: {
+				  text: 'Total Screenings for 1st, 2nd and Booster dose'
+				},
+				tooltip: {
+				  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+				},
+				accessibility: {
+				  point: {
+					valueSuffix: '%'
+				  }
+				},
+				plotOptions: {
+				  pie: {
+					allowPointSelect: true,
+					cursor: 'pointer',
+					dataLabels: {
+					  enabled: true,
+					  format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+					}
+				  }
+				},
+				series: [{
+				  name: 'Brands',
+				  colorByPoint: true,
+				  data: [{
+					name: 'Chrome',
+					y: 61.41,
+					sliced: true,
+					selected: true
+				  }, {
+					name: 'Internet Explorer',
+					y: 11.84
+				  }, {
+					name: 'Firefox',
+					y: 10.85
+				  },]
+				}]
+			  });
+		  </script>
+	</div>
+	<div class="col-md-6">
+		<figure class="highcharts-figure1">
+			<div id="container1"></div>
+			<p class="highcharts-description">
+				Chart showing stacked columns for comparing quantities. Stacked charts
+				are often used to visualize data that accumulates to a sum. This chart
+				is showing data labels for each individual section of the stack.
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('container1', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: '1st, 2nd and booster screening per site'
+				},
+				xAxis: {
+					categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'Phikwe']
+				},
+				yAxis: {
+					min: 0,
+					title: {
+						text: 'Total Screening'
+				},
+				stackLabels: {
+					enabled: true,
+					style: {
+						fontWeight: 'bold',
+						color: ( // theme
+							Highcharts.defaultOptions.title.style &&
+							Highcharts.defaultOptions.title.style.color
+						) || 'gray'
+					}
+				}
+				},
+				legend: {
+				  align: 'right',
+				  x: -30,
+				  verticalAlign: 'top',
+				  y: 25,
+				  floating: true,
+				  backgroundColor:
+					Highcharts.defaultOptions.legend.backgroundColor || 'white',
+				  borderColor: '#CCC',
+				  borderWidth: 1,
+				  shadow: false
+				},
+				tooltip: {
+				  headerFormat: '<b>{point.x}</b><br/>',
+				  pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+				},
+				plotOptions: {
+				  column: {
+					stacking: 'normal',
+					dataLabels: {
+					  enabled: true
+					}
+				  }
+				},
+				series: [{
+				  name: '1st dose',
+				  data: [5, 3, 4, 7, 2]
+				}, {
+				  name: '2nd dose',
+				  data: [2, 2, 3, 2, 1]
+				}, {
+				  name: 'Booster dose',
+				  data: [3, 4, 4, 2, 5]
+				}]
+			  });
+		</script>
+	</div>
 </div>

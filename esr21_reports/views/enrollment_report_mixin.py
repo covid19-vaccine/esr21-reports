@@ -1,12 +1,8 @@
-import json
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.db.models import Q
 from edc_base.view_mixins import EdcBaseViewMixin
 from ..models import VaccinationEnrollments
-
-from esr21_reports.models.dashboard_statistics import DashboardStatistics
-from ..models import VaccinationStatistics, EnrollmentStatistics
 
 
 class EnrollmentReportMixin(EdcBaseViewMixin):
@@ -16,7 +12,6 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
     onschedule_model = 'esr21_subject.onschedule'
     pregnancy_test_model = 'esr21_subject.pregnancytest'
     covid_19_results_model = 'esr21_subject.covid19results'
-    vaccination_history_model = 'esr21_subject.vaccinationhistory'
 
     @property
     def vaccination_model_cls(self):
@@ -68,8 +63,10 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
     def second_dose_at_enrollment(self):
         totals = []
 
-        ids = self.vaccination_history_cls.objects.filter(Q(dose_quantity=1)).exclude(
-            Q(dose1_product_name='azd_1222')).values_list('subject_identifier', flat=True)
+        ids = self.vaccination_history_cls.objects.filter(
+            Q(dose_quantity=1)).exclude(
+            Q(dose1_product_name='azd_1222')).values_list('subject_identifier',
+                                                          flat=True)
 
         for site_id in range(40, 45):
             total_second_dose = self.vaccination_model_cls.objects.filter(
@@ -80,21 +77,23 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
             totals.append(total_second_dose)
 
         return ['Second dose at enrollment', sum(totals), *totals]
-    
-    
+
     @property
     def booster_dose_at_enrollment(self):
         totals = []
 
-        ids = self.vaccination_history_cls.objects.filter(dose_quantity=2).exclude(
-            Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
+        ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=2).exclude(
+                Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
                 'subject_identifier', flat=True)
-
 
         for site_id in range(40, 45):
             total_booster = self.vaccination_model_cls.objects.filter(
                 site_id=site_id,
-                received_dose_before='booster_dose',subject_visit__subject_identifier__in=ids).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
+                received_dose_before='booster_dose',
+                subject_visit__subject_identifier__in=ids
+                ).values_list('subject_visit__subject_identifier',
+                              flat=True).distinct().count()
 
             totals.append(total_booster)
 
@@ -231,7 +230,7 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
                 Q(received_dose_before=dose) &
                 Q(site_id=site_id)).count()
 
-    def seond_dose_enrollments_elsewhere(self):
+    def second_dose_enrollments_elsewhere(self):
         sinovac_ids = self.vaccination_history_cls.objects.filter(
             dose_quantity=1, dose1_product_name='sinovac'
             ).values_list('subject_identifier', flat=True)
@@ -372,3 +371,25 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
             second_booster_enrollments=self.total_2nd_booster_enrollments
         )
         return context
+
+    @property
+    def screend_participants(self, dose=None):
+        ids = self.vaccination_history_cls.objects.filter(Q(dose_quantity=1)).exclude(
+            Q(dose1_product_name='azd_1222')).values_list('subject_identifier', flat=True)
+        overall = self.sc.objects.filter(
+            Q(received_dose_before=dose)).count()
+        gaborone = self.get_enrolled_by_site('Gaborone').count()
+        maun = self.get_enrolled_by_site('Maun').count()
+        serowe = self.get_enrolled_by_site('Serowe').count()
+        f_town = self.get_enrolled_by_site('Francistown').count()
+        phikwe = self.get_enrolled_by_site('Phikwe').count()
+
+        return [
+            ['Enrolled', overall, gaborone, maun, serowe, f_town, phikwe],
+            self.main_cohort_participants,
+            self.sub_cohort_participants,
+            self.pregnant_enrollment,
+            self.covid_positives,
+            self.second_dose_at_enrollment,
+            self.booster_dose_at_enrollment,
+        ]

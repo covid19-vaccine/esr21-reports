@@ -46,195 +46,135 @@
 	  background: #f1f7ff;
 	}
 </style>
-	<div class="row">
+<div class="row">
 	<div class="col-md-6">
-			<figure class="highcharts-figure">
-				<div id="stacked-graph"></div>
-				<p class="highcharts-description">
-					Chart showing a combination of a column and a line chart, using multiple
-					y-axes. Using multiple axes allows for data within different ranges to
-					be visualized together. 
-					
-					The graph shows overall enrollment per site
-				</p>
-			</figure>
-	    	<script>
-	    		  Highcharts.chart('stacked-graph', {
-					chart: {
-						zoomType: 'xy'
-					},
+		<figure class="highcharts-figure">
+			<div id="container3"></div>
+			<p class="highcharts-description">
+			  Pie charts are very popular for showing a compact overview of a
+			  composition or comparison. While they can be harder to read than
+			  column charts, they remain a popular choice for small datasets.
+			</p>
+		  </figure>
+		  <script>
+			Highcharts.chart('container3', {
+				chart: {
+				  plotBackgroundColor: null,
+				  plotBorderWidth: null,
+				  plotShadow: false,
+				  type: 'pie'
+				},
+				title: {
+				  text: 'Total Enrolments for 1st, 2nd and Booster dose'
+				},
+				tooltip: {
+				  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+				},
+				accessibility: {
+				  point: {
+					valueSuffix: '%'
+				  }
+				},
+				plotOptions: {
+				  pie: {
+					allowPointSelect: true,
+					cursor: 'pointer',
+					dataLabels: {
+					  enabled: true,
+					  format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+					}
+				  }
+				},
+				series: [{
+				  name: 'Brands',
+				  colorByPoint: true,
+				  data: [{
+					name: 'Chrome',
+					y: 61.41,
+					sliced: true,
+					selected: true
+				  }, {
+					name: 'Internet Explorer',
+					y: 11.84
+				  }, {
+					name: 'Firefox',
+					y: 10.85
+				  },]
+				}]
+			  });
+		  </script>
+	</div>
+	<div class="col-md-6">
+		<figure class="highcharts-figure1">
+			<div id="container4"></div>
+			<p class="highcharts-description">
+				Chart showing stacked columns for comparing quantities. Stacked charts
+				are often used to visualize data that accumulates to a sum. This chart
+				is showing data labels for each individual section of the stack.
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('container4', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: '1st, 2nd and booster dose screening per site'
+				},
+				xAxis: {
+					categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'Phikwe']
+				},
+				yAxis: {
+					min: 0,
 					title: {
-						text: 'Enrolled Per Site'
-					},
-					subtitle: {
-						text: 'Total enrolled regardless of gender'
-					},
-					xAxis: [{
-						categories: {{  site_names | safe }},
-						crosshair: true
-					}],
-					yAxis: [{ // Primary yAxis
-						max: 100,
-						labels: {
-						style: {
-							color: Highcharts.getOptions().colors[1]
-						}
-						},
-						title: {
-						text: 'Enrollments By Percentage',
-						style: {
-							color: Highcharts.getOptions().colors[1]
-						}
-						}
-					}, { // Secondary yAxis
-						title: {
-						text: 'Number of Enrollments',
-						style: {
-							color: Highcharts.getOptions().colors[0]
-						}
-						},
-						labels: {
-						style: {
-							color: Highcharts.getOptions().colors[0]
-						}
-						},
-						opposite: true
-					}],
-					tooltip: {
-						shared: true
-					},
-					legend: {
-						layout: 'vertical',
-						align: 'left',
-						x: 120,
-						verticalAlign: 'top',
-						y: 100,
-						floating: true,
-						backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || // theme
-						'rgba(255,255,255,0.25)'
-					},
-					series: [{
-						name: 'Sites',
-						type: 'column',
-						yAxis: 1,
-						valueSuffix: '%',
-						data: {{ overall }},
-	
-					}, {
-						name: 'Enrolled By Percentage',
-						type: 'spline',
-						data: {{ overall_percentages }},
-						tooltip: {
-						valueSuffix: '%'
-						}
-					}]
-				});
-
-	    	</script>
-	    </div>
-	
-	
-	<div class="col-md-6">
-			<figure class="highcharts-figure">
-			  <div id="splineChart"></div>
-			  <p class="highcharts-description">The line graph shows enrolled participants by gender per site </p>
-			</figure>
-		       <script>
-			       var colors = Highcharts.getOptions().colors;
-	
-			       Highcharts.chart('splineChart', {
-			         chart: {
-			           type: 'spline'
-			         },
-	
-			         legend: {
-			           symbolWidth: 40
-			         },
-	
-			         title: {
-			           text: 'Enrolled participants by gender per site'
-			         },
-	
-			         yAxis: {
-			           title: {
-			             text: 'Enrollment Percentages'
-			           },
-			           accessibility: {
-			             description: 'Enrollment Percentages',
-			           },
-
-			         },
-	
-			         xAxis: {
-			           title: {
-			             text: 'Study Site'
-			           },
-			           accessibility: {
-			             description: 'Study Site',
-
-			           },
-			           categories: {{ site_names | safe }},
-			         },
-	
-			         tooltip: {
-			           	valueSuffix: '%'
-			         },
-	
-			         plotOptions: {
-			           series: {
-			             point: {
-			               events: {
-			                 click: function () {
-			                   window.location.href = this.series.options.website;
-			                 }
-			               }
-			             },
-			             cursor: 'pointer'
-			           }
-			         },
-	
-			         series: [
-			           {
-			             name: 'Male',
-			             data: {{ males }},
-			             color: colors[2],
-			             accessibility: {
-			               description: 'This is the most used screen reader in 2019'
-			             }
-			           },{
-			             name: 'Female',
-			             data: {{ females }},
-			             color: colors[3],
-						 valueSuffix: '%',
-
-
-			           }
-			         ],
-	
-			         responsive: {
-			           rules: [{
-			             condition: {
-			               maxWidth: 550
-			             },
-			             chartOptions: {
-			               chart: {
-			                 spacingLeft: 3,
-			                 spacingRight: 3
-			               },
-			               legend: {
-			                 itemWidth: 150
-			               },
-			               xAxis: {
-			                 categories: {{ site_names | safe }},
-			                 title: ''
-			               },
-			               yAxis: {
-			                 visible: true
-			               }
-			             }
-			           }]
-			         }
-			       });
-			   </script>
-		</div>
+						text: 'Total Screening'
+				},
+				stackLabels: {
+					enabled: true,
+					style: {
+						fontWeight: 'bold',
+						color: ( // theme
+							Highcharts.defaultOptions.title.style &&
+							Highcharts.defaultOptions.title.style.color
+						) || 'gray'
+					}
+				}
+				},
+				legend: {
+				  align: 'right',
+				  x: -30,
+				  verticalAlign: 'top',
+				  y: 25,
+				  floating: true,
+				  backgroundColor:
+					Highcharts.defaultOptions.legend.backgroundColor || 'white',
+				  borderColor: '#CCC',
+				  borderWidth: 1,
+				  shadow: false
+				},
+				tooltip: {
+				  headerFormat: '<b>{point.x}</b><br/>',
+				  pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+				},
+				plotOptions: {
+				  column: {
+					stacking: 'normal',
+					dataLabels: {
+					  enabled: true
+					}
+				  }
+				},
+				series: [{
+				  name: '1st dose',
+				  data: [5, 3, 4, 7, 2]
+				}, {
+				  name: '2nd dose',
+				  data: [2, 2, 3, 2, 1]
+				}, {
+				  name: 'Booster dose',
+				  data: [3, 4, 4, 2, 5]
+				}]
+			  });
+		</script>
+	</div>
 </div>
