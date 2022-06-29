@@ -12,6 +12,12 @@ class ScreeningReportsViewMixin(EdcBaseViewMixin):
     vaccination_model = 'esr21_subject.vaccinationdetails'
     pregnancy_test_model = 'esr21_subject.pregnancytest'
     onschedule_model = 'esr21_subject.onschedule'
+    eligibility_model = 'esr21_subject.eligibilityconfirmation'
+    
+    
+    @property
+    def eligibility_model_cls(self):
+        return django_apps.get_model(self.eligibility_model)
 
     @property
     def subject_screening_cls(self):
