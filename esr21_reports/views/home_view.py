@@ -9,6 +9,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
 from django.conf import settings
 from esr21_reports.models import DashboardStatistics
+from esr21_reports.views.psrt_mixins.summary_queries_mixins.pregnancy_summary_mixin import PregnancySummaryMixin
 from .enrollment_report_mixin import EnrollmentReportMixin
 from .site_helper_mixin import SiteHelperMixin
 from .adverse_events import (
@@ -23,6 +24,7 @@ class HomeView(
             AdverseEventRecordViewMixin,
             SeriousAdverseEventRecordViewMixin,
             SiteHelperMixin,
+            PregnancySummaryMixin,
             ScreeningReportsViewMixin,
             EnrollmentReportMixin,
             DemographicsMixin,
