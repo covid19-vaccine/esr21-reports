@@ -107,8 +107,6 @@ class PregnancySummaryMixin(EdcBaseViewMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        breakpoint()
-
         context.update(
             no_preg_results_stats = self.no_preg_results_statistics,
             pregnancy_statistics = self.pregnancy_statistics_preprocessor
