@@ -395,6 +395,53 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <!-- Begin Page Content -->
+                        <div class="container-fluid">
+                            <!-- Collapsable Card Example -->
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Accordion -->
+                                <a href="#collapseCardExample10" class="d-block card-header py-3" data-toggle="collapse"
+                                    role="button" aria-expanded="true" aria-controls="collapseCardExample1">
+                                    <h6 class="m-0 font-weight-bold text-primary">Pregnancy Statistics</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse hide" id="collapseCardExample10">
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Variable</th>
+                                                        <th>Overall</th>
+                                                        <th>Gaborone</th>
+                                                        <th>Maun</th>
+                                                        <th>Serowe</th>
+                                                        <th>F/Town</th>
+                                                        <th>Phikwe</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for s_data in pregnancy_statistics %}
+                                                    <tr>
+                                                        <td style=""><strong>{{ s_data.0 }}</strong></td>
+                                                        <td>{{ s_data.1 }}</td>
+                                                        <td>{{ s_data.2 }}</td>
+                                                        <td>{{ s_data.3 }}</td>
+                                                        <td>{{ s_data.4 }}</td>
+                                                        <td>{{ s_data.5 }}</td>
+                                                        <td>{{ s_data.6 }}</td>
+                                                    </tr>  
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <!-- Begin Page Content -->
                         <div class="container-fluid">
