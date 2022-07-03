@@ -52,9 +52,7 @@
 		<figure class="highcharts-figure">
 			<div id="container"></div>
 			<p class="highcharts-description">
-			  Pie charts are very popular for showing a compact overview of a
-			  composition or comparison. While they can be harder to read than
-			  column charts, they remain a popular choice for small datasets.
+			 Pie chart showing screeings at different entry points
 			</p>
 		  </figure>
 		  <script>
@@ -71,11 +69,7 @@
 				tooltip: {
 				  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 				},
-				accessibility: {
-				  point: {
-					valueSuffix: '%'
-				  }
-				},
+				
 				plotOptions: {
 				  pie: {
 					allowPointSelect: true,
@@ -87,19 +81,19 @@
 				  }
 				},
 				series: [{
-				  name: 'Brands',
+				  name: 'Screening',
 				  colorByPoint: true,
 				  data: [{
-					name: 'Chrome',
-					y: 61.41,
+					name: 'First dose screening',
+					y: {{ overall_screened.0}},
 					sliced: true,
 					selected: true
 				  }, {
-					name: 'Internet Explorer',
-					y: 11.84
+					name: 'Second dose screening',
+					y: {{ overall_screened.1 }},
 				  }, {
-					name: 'Firefox',
-					y: 10.85
+					name: 'Booster dose screening',
+					y: {{ overall_screened.2 }}
 				  },]
 				}]
 			  });
@@ -109,9 +103,7 @@
 		<figure class="highcharts-figure1">
 			<div id="container1"></div>
 			<p class="highcharts-description">
-				Chart showing stacked columns for comparing quantities. Stacked charts
-				are often used to visualize data that accumulates to a sum. This chart
-				is showing data labels for each individual section of the stack.
+				Chart showing stacked columns for comparing screening entry points.
 			</p>
 		</figure>
 		<script>
@@ -123,7 +115,7 @@
 					text: '1st, 2nd and booster dose screening per site'
 				},
 				xAxis: {
-					categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'Phikwe']
+					categories: [{% for site in sites %}  '{{ site }}',  {% endfor %}],
 				},
 				yAxis: {
 					min: 0,
@@ -142,40 +134,40 @@
 				}
 				},
 				legend: {
-				  align: 'right',
-				  x: -30,
-				  verticalAlign: 'top',
-				  y: 25,
-				  floating: true,
-				  backgroundColor:
-					Highcharts.defaultOptions.legend.backgroundColor || 'white',
-				  borderColor: '#CCC',
-				  borderWidth: 1,
-				  shadow: false
+					align: 'right',
+					x: -30,
+					verticalAlign: 'top',
+					y: 25,
+					floating: true,
+					backgroundColor:
+						Highcharts.defaultOptions.legend.backgroundColor || 'white',
+					borderColor: '#CCC',
+					borderWidth: 1,
+					shadow: false
 				},
 				tooltip: {
-				  headerFormat: '<b>{point.x}</b><br/>',
-				  pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+					headerFormat: '<b>{point.x}</b><br/>',
+					pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
 				},
 				plotOptions: {
-				  column: {
-					stacking: 'normal',
-					dataLabels: {
-					  enabled: true
+					column: {
+						stacking: 'normal',
+						dataLabels: {
+						enabled: true
 					}
-				  }
+				}
 				},
 				series: [{
-				  name: '1st dose',
-				  data: [5, 3, 4, 7, 2]
+					name: 'Booster dose screening',
+					data: {{ booster_doses }}
 				}, {
-				  name: '2nd dose',
-				  data: [2, 2, 3, 2, 1]
+					name: '2nd dose screening',
+					data: {{ second_doses }}
 				}, {
-				  name: 'Booster dose',
-				  data: [3, 4, 4, 2, 5]
+					name: '1st dose screening',
+					data: {{ first_doses }}
 				}]
-			  });
+			});
 		</script>
 	</div>
 </div>
