@@ -4,6 +4,7 @@ from django.contrib.sites.models import Site
 from edc_base.view_mixins import EdcBaseViewMixin
 from esr21_subject.models import VaccinationDetails, InformedConsent
 from edc_constants.constants import FEMALE, MALE
+from django.db.models import Q
 
 from ...models import VaccinationEnrollments
 
@@ -70,6 +71,63 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
                                 dose.astrazeneca, dose.moderna, dose.janssen]))
         return [doses, total_doses]
 
+    def total_doses_enrolled(self):
+        pass
+
+    def total_enrolled(self):
+        second_dose = self.second_dose_at_enrollment
+        booster_dose = self.booster_dose_at_enrollment
+        first_dose = self.first_dose_enrollment
+        return [sum(first_dose), sum(second_dose), sum(booster_dose)]
+
+    @property
+    def first_dose_enrollment(self):
+        totals = []
+        for site_id in range(40, 45):
+            first_dose = VaccinationDetails.objects.filter(
+                received_dose_before='first_dose', site_id=site_id).distinct().count()
+            totals.append(first_dose)
+        return totals
+
+    @property
+    def second_dose_at_enrollment(self):
+        totals = []
+
+        ids = self.vaccination_history_cls.objects.filter(
+            Q(dose_quantity=1)).exclude(
+            Q(dose1_product_name='azd_1222')).values_list('subject_identifier',
+                                                          flat=True)
+
+        for site_id in range(40, 45):
+            total_second_dose = self.vaccination_model_cls.objects.filter(
+                site_id=site_id,
+                received_dose_before='second_dose',
+                subject_visit__subject_identifier__in=ids).values_list(
+                    'subject_visit__subject_identifier', flat=True).distinct().count()
+            totals.append(total_second_dose)
+
+        return totals
+
+    @property
+    def booster_dose_at_enrollment(self):
+        totals = []
+
+        ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=2).exclude(
+                Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
+                'subject_identifier', flat=True)
+
+        for site_id in range(40, 45):
+            total_booster = self.vaccination_model_cls.objects.filter(
+                site_id=site_id,
+                received_dose_before='booster_dose',
+                subject_visit__subject_identifier__in=ids
+                ).values_list('subject_visit__subject_identifier',
+                              flat=True).distinct().count()
+            totals.append(total_booster)
+
+        return totals
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         all_enrollments = self.enrollment_stats_cls.objects.all()
@@ -96,6 +154,10 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
             males=json.dumps(males),
             overall=json.dumps(overalls),
             overall_percentages=json.dumps(percentages),
-            overall_dose_enrollements=self.total_2nd_booster_enrollments
+            overall_dose_enrollements=self.total_2nd_booster_enrollments,
+            total_enrolled=self.total_enrolled(),
+            second_dose_at_enrollment=self.second_dose_at_enrollment,
+            booster_dose_at_enrollment=self.booster_dose_at_enrollment,
+            first_dose_enrollment=self.first_dose_enrollment
         )
         return context

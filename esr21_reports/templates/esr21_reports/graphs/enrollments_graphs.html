@@ -49,68 +49,57 @@
 <div class="row">
 	<div class="col-md-6">
 		<figure class="highcharts-figure">
-			<div id="container3"></div>
+			<div id="total_enrolled"></div>
 			<p class="highcharts-description">
-			  Pie charts are very popular for showing a compact overview of a
-			  composition or comparison. While they can be harder to read than
-			  column charts, they remain a popular choice for small datasets.
+				Bar chart shows a comparison of first dose and second dose for all sites.
 			</p>
-		  </figure>
-		  <script>
-			Highcharts.chart('container3', {
+		</figure>
+		<script>
+			Highcharts.chart('total_enrolled', {
 				chart: {
-				  plotBackgroundColor: null,
-				  plotBorderWidth: null,
-				  plotShadow: false,
-				  type: 'pie'
+					type: 'column'
 				},
 				title: {
-				  text: 'Total Enrolments for 1st, 2nd and Booster dose'
+					text: 'First & second and booster dose enrollments'
 				},
-				tooltip: {
-				  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+				xAxis: {
+					categories: ['First dose', 'Second dose', 'Booster dose'],
+					title: {
+						text: null
+					}
 				},
-				accessibility: {
-				  point: {
-					valueSuffix: '%'
-				  }
+				yAxis: {
+					
+					title: {
+						text: 'First & second and booster dose enrollments',
+						align: 'high'
+					},
+					labels: {
+						overflow: 'justify'
+					}
 				},
 				plotOptions: {
-				  pie: {
-					allowPointSelect: true,
-					cursor: 'pointer',
-					dataLabels: {
-					  enabled: true,
-					  format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+					bar: {
+						dataLabels: {
+							enabled: true
+						}
 					}
-				  }
+				},
+				credits: {
+					enabled: false
 				},
 				series: [{
-				  name: 'Brands',
-				  colorByPoint: true,
-				  data: [{
-					name: 'Chrome',
-					y: 61.41,
-					sliced: true,
-					selected: true
-				  }, {
-					name: 'Internet Explorer',
-					y: 11.84
-				  }, {
-					name: 'Firefox',
-					y: 10.85
-				  },]
-				}]
-			  });
-		  </script>
+					name:'dose',
+					data: {{ total_enrolled }}
+				},]
+			});
+		</script>
 	</div>
 	<div class="col-md-6">
 		<figure class="highcharts-figure1">
 			<div id="container4"></div>
 			<p class="highcharts-description">
-				Chart showing stacked columns for comparing quantities. Stacked charts
-				are often used to visualize data that accumulates to a sum. This chart
-				is showing data labels for each individual section of the stack.
+				
 			</p>
 		</figure>
 		<script>
@@ -119,7 +108,7 @@
 					type: 'column'
 				},
 				title: {
-					text: '1st, 2nd and booster dose screening per site'
+					text: 'First & second and booster dose enrollments per site'
 				},
 				xAxis: {
 					categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'Phikwe']
@@ -165,14 +154,14 @@
 				  }
 				},
 				series: [{
-				  name: '1st dose',
-				  data: [5, 3, 4, 7, 2]
+				  name: 'Booster dose',
+				  data: {{ booster_dose_at_enrollment }}
 				}, {
 				  name: '2nd dose',
-				  data: [2, 2, 3, 2, 1]
+				  data: {{ second_dose_at_enrollment }}
 				}, {
-				  name: 'Booster dose',
-				  data: [3, 4, 4, 2, 5]
+				  name: '1st dose',
+				  data: {{ first_dose_enrollment }}
 				}]
 			  });
 		</script>
