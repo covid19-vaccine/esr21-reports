@@ -12,6 +12,8 @@ from ...models import VaccinationEnrollments
 class EnrollmentGraphMixin(EdcBaseViewMixin):
 
     enrollment_stats_model = 'esr21_reports.enrollmentstatistics'
+    
+    doses = ['sinovac', 'pfizer', 'moderna', 'janssen', 'astrazeneca']
 
     @property
     def enrollment_stats_cls(self):
@@ -64,15 +66,17 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
     def total_2nd_booster_enrollments(self):
         doses = VaccinationEnrollments.objects.all()
         total_doses = []
-        doses = []
         for dose in doses:
-            doses.append(dose.variable)
-            total_doses.append(sum([dose.sinovac, dose.pfizer,
-                                dose.astrazeneca, dose.moderna, dose.janssen]))
-        return [doses, total_doses]
+            total = dose.sinovac+dose.pfizer+dose.astrazeneca+dose.moderna+dose.janssen
+            total_doses.append(total)
+        return sum(total_doses)
 
-    def total_doses_enrolled(self):
-        pass
+    @property
+    def pie_total_doses_enrolled(self):
+        other_vaccines = self.total_2nd_booster_enrollments
+        total = VaccinationDetails.objects.filter(received_dose_before='first_dose').distinct().count()
+        azd_1222 = total - other_vaccines
+        return [azd_1222, other_vaccines]
 
     def total_enrolled(self):
         second_dose = self.second_dose_at_enrollment
@@ -158,6 +162,7 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
             total_enrolled=self.total_enrolled(),
             second_dose_at_enrollment=self.second_dose_at_enrollment,
             booster_dose_at_enrollment=self.booster_dose_at_enrollment,
-            first_dose_enrollment=self.first_dose_enrollment
+            first_dose_enrollment=self.first_dose_enrollment,
+            pie_total_doses_enrolled=self.pie_total_doses_enrolled
         )
         return context

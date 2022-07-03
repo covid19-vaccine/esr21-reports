@@ -167,3 +167,102 @@
 		</script>
 	</div>
 </div>
+
+<div class="row">
+	<div class="col-md-6">
+		<figure class="highcharts-figure">
+			<div id="pieDoseEnrolments"></div>
+			<p class="highcharts-description">
+			 Pie chart showing screeings at different entry points
+			</p>
+		  </figure>
+		  <script>
+			Highcharts.chart('pieDoseEnrolments', {
+				chart: {
+				  plotBackgroundColor: null,
+				  plotBorderWidth: null,
+				  plotShadow: false,
+				  type: 'pie'
+				},
+				title: {
+				  text: 'AZD 1222 and other products enrollments'
+				},
+				tooltip: {
+				  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+				},
+				
+				plotOptions: {
+				  pie: {
+					allowPointSelect: true,
+					cursor: 'pointer',
+					dataLabels: {
+					  enabled: true,
+					  format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+					}
+				  }
+				},
+				series: [{
+				  name: 'Screening',
+				  colorByPoint: true,
+				  data: [{
+					name: 'AZD 122 Enrolments',
+					y: {{ pie_total_doses_enrolled.0}},
+					sliced: true,
+					selected: true
+				  }, {
+					name: 'Other Products enrolments',
+					y: {{ pie_total_doses_enrolled.1 }},
+				  },]
+				}]
+			  });
+		  </script>
+	</div>
+	<div class="col-md-6">
+		<figure class="highcharts-figure">
+			<div id="product_enrolled"></div>
+			<p class="highcharts-description">
+				Bar chart shows a comparison of first dose and second dose for all sites.
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('product_enrolled', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: 'AZD 1222 and other product enrollments'
+				},
+				xAxis: {
+					categories: ['AZD 1222', 'Others'],
+					title: {
+						text: null
+					}
+				},
+				yAxis: {
+					
+					title: {
+						text: 'AZD 1222 and other product enrollments',
+						align: 'high'
+					},
+					labels: {
+						overflow: 'justify'
+					}
+				},
+				plotOptions: {
+					bar: {
+						dataLabels: {
+							enabled: true
+						}
+					}
+				},
+				credits: {
+					enabled: false
+				},
+				series: [{
+					name:'product',
+					data: {{ pie_total_doses_enrolled }}
+				},]
+			});
+		</script>
+	</div>
+</div>
