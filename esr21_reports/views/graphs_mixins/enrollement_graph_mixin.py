@@ -5,6 +5,8 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from esr21_subject.models import VaccinationDetails, InformedConsent
 from edc_constants.constants import FEMALE, MALE
 
+from ...models import VaccinationEnrollments
+
 
 class EnrollmentGraphMixin(EdcBaseViewMixin):
 
@@ -57,6 +59,17 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
 
         return male_percentage, female_percentage
 
+    @property
+    def total_2nd_booster_enrollments(self):
+        doses = VaccinationEnrollments.objects.all()
+        total_doses = []
+        doses = []
+        for dose in doses:
+            doses.append(dose.variable)
+            total_doses.append(sum([dose.sinovac, dose.pfizer,
+                                dose.astrazeneca, dose.moderna, dose.janssen]))
+        return [doses, total_doses]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         all_enrollments = self.enrollment_stats_cls.objects.all()
@@ -83,5 +96,6 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
             males=json.dumps(males),
             overall=json.dumps(overalls),
             overall_percentages=json.dumps(percentages),
+            overall_dose_enrollements=self.total_2nd_booster_enrollments
         )
         return context

@@ -366,27 +366,27 @@
                                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                                 <thead>
                                                     <tr>
-                                                        <th>Variable</th>
-                                                        <th>Overall</th>
-                                                        <th>Gaborone</th>
-                                                        <th>Maun</th>
-                                                        <th>Serowe</th>
-                                                        <th>F/Town</th>
-                                                        <th>Phikwe</th>
+                                                        <th>Site</th>
+                                                        <th>First dose screening</th>
+                                                        <th>Second dose screening</th>
+                                                        <th>Booster dose screening</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for s_data in vaccinated_participants %}
+                                                    {% for s_data in screenings %}
                                                     <tr>
-                                                        <td style=""><strong>{{ s_data.0 }}</strong></td>
-                                                        <td>{{ s_data.1 }}</td>
-                                                        <td>{{ s_data.2 }}</td>
-                                                        <td>{{ s_data.3 }}</td>
-                                                        <td>{{ s_data.4 }}</td>
-                                                        <td>{{ s_data.5 }}</td>
-                                                        <td>{{ s_data.6 }}</td>
+                                                        <td style=""><strong>{{ s_data.site }}</strong></td>
+                                                        <td>{{ s_data.dose1 }}</td>
+                                                        <td>{{ s_data.dose2}}</td>
+                                                        <td>{{ s_data.dose3 }}</td>
                                                     </tr>  
                                                     {% endfor %}
+                                                    <tr>
+                                                        <td style=""><strong>Total</strong></td>
+                                                        <td>{{ total_screening.0 }}</td>
+                                                        <td>{{ total_screening.1}}</td>
+                                                        <td>{{ total_screening.2 }}</td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>

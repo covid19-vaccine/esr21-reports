@@ -3,14 +3,17 @@ from django.apps import apps as django_apps
 from edc_base.view_mixins import EdcBaseViewMixin
 from django.contrib.sites.models import Site
 from django.db.models import Q
+from edc_constants.constants import YES
 
 
 class ScreeningGraphMixin(EdcBaseViewMixin):
 
     subject_screening_model = 'esr21_subject.eligibilityconfirmation'
     vaccination_model = 'esr21_subject.vaccinationdetails'
+    vaccination_history_model = 'esr21_subject.vaccinationhistory'
     consent_model = 'esr21_subject.informedconsent'
     screening_stats_model = 'esr21_reports.screeningstatistics'
+    second_screening_model = 'esr21_subject.screeningeligibility'
 
     @property
     def subject_screening_cls(self):
@@ -19,6 +22,14 @@ class ScreeningGraphMixin(EdcBaseViewMixin):
     @property
     def vaccination_model_cls(self):
         return django_apps.get_model(self.vaccination_model)
+
+    @property
+    def vaccination_history_cls(self):
+        return django_apps.get_model(self.vaccination_history_model)
+
+    @property
+    def screening_eligibiliby_cls(self):
+        return django_apps.get_model(self.second_screening_model)
 
     @property
     def screening_stats_model_cls(self):
@@ -136,3 +147,29 @@ class ScreeningGraphMixin(EdcBaseViewMixin):
     @property
     def all_screened_participants(self):
         return self.subject_screening_cls.objects.count()
+
+    def first_dose_screening(self, site_id=None):
+        screening = self.screening_eligibiliby_cls.objects.filter(
+            site_id=site_id).distinct().count()
+        total = self.second_dose_screening(site_id) + self.booster_dose_screening(site_id)
+        overall = screening - total
+        return overall
+
+    def second_dose_screening(self, site_id=None):
+        pids = self.vaccination_history_cls.objects.filter(
+            received_vaccine=YES,
+            dose_quantity=1
+        ).exclude(dose1_product_name='azd_1222').values_list(
+            'subject_identifier', flat=True).distinct()
+        screening = self.screening_eligibiliby_cls.objects.filter(
+            subject_identifier__in=pids, site_id=site_id).distinct().count()
+        return screening
+
+    def booster_dose_screening(self, site_id=None):
+        pids = self.vaccination_history_cls.objects.filter(
+            received_vaccine=YES,
+            dose_quantity=2
+        ).exclude(Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list('subject_identifier', flat=True).distinct()
+        screening = self.screening_eligibiliby_cls.objects.filter(
+            subject_identifier__in=pids, site_id=site_id).distinct().count()
+        return screening
