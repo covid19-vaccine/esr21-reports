@@ -71,18 +71,13 @@
                     }
                 },
                 yAxis: {
-                    min: 0,
-                    max: 100,
                     title: {
-                        text: 'Percentage of participants who received the vaccine (%)',
+                        text: 'Number of participants who received the vaccine',
                         align: 'high'
                     },
                     labels: {
                         overflow: 'justify'
                     }
-                },
-                tooltip: {
-                    valueSuffix: ' %'
                 },
                 plotOptions: {
                     bar: {
@@ -95,7 +90,7 @@
                     enabled: false
                 },
                 series: [{
-                    name:'Dose',
+                    name:'dose',
                     data: {{all_sites_dose}}
                 },]
             });
@@ -125,18 +120,13 @@
                     }
                 },
                 yAxis: {
-                    min: 0,
-                    max: 35,
                     title: {
-                        text: 'Vaccines used per site out of 12,305 doses administered (%)',
+                        text: 'Vaccines used per site out of 12,305 doses administered',
                         align: 'high'
                     },
                     labels: {
                         overflow: 'justify'
                     }
-                },
-                tooltip: {
-                    valueSuffix: ' %'
                 },
                 plotOptions: {
                     bar: {
