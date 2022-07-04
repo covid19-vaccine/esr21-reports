@@ -231,7 +231,7 @@ class AdverseEventRecordMixin:
 
     @property
     def ae_overall(self):
-        overall = self.ae_cls.objects.count()
+        overall = self.ae_record_cls.objects.count()
         gaborone = self.get_adverse_event_by_site('Gaborone').count()
         maun = self.get_adverse_event_by_site('Maun').count()
         serowe = self.get_adverse_event_by_site('Serowe').count()
@@ -245,4 +245,4 @@ class AdverseEventRecordMixin:
         site_helper = SiteHelperMixin()
         site_id = site_helper.get_site_id(site)
         if site_id:
-            return self.ae_cls.objects.filter(site_id=site_id)
+            return self.ae_record_cls.objects.filter(site_id=site_id)

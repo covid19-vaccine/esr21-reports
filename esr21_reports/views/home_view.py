@@ -1,4 +1,5 @@
 import configparser
+from datetime import datetime, timezone
 import json
 import threading
 from django.core.management import call_command
@@ -8,6 +9,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
 from django.conf import settings
 from esr21_reports.models import DashboardStatistics
+from esr21_reports.views.psrt_mixins.summary_queries_mixins.pregnancy_summary_mixin import PregnancySummaryMixin
 from .enrollment_report_mixin import EnrollmentReportMixin
 from .site_helper_mixin import SiteHelperMixin
 from .adverse_events import (
@@ -22,6 +24,7 @@ class HomeView(
             AdverseEventRecordViewMixin,
             SeriousAdverseEventRecordViewMixin,
             SiteHelperMixin,
+            PregnancySummaryMixin,
             ScreeningReportsViewMixin,
             EnrollmentReportMixin,
             DemographicsMixin,
@@ -41,8 +44,9 @@ class HomeView(
         
         if HomeView.lock.locked():
             return
-        
+
         HomeView.lock.acquire()
+        HomeView.is_loading = True
         HomeView.user_generation_data = self.request.user.username
         call_command('populate_graphs')
         
@@ -67,13 +71,17 @@ class HomeView(
                 from_email=config['email_conf'].get('email_user')
         )
         
+
+        
         HomeView.lock.release()
     
     
     def post(self, request, *args, **kwargs):
         generate = request.POST.get('generate', None)
         
-        if generate:
+        updated_time_difference = datetime.now(timezone.utc) -  self.last_updated_at
+        
+        if generate and updated_time_difference.seconds > 10:
             thread = threading.Thread(target=self.generate_reports, daemon=True)
             thread.start()
         

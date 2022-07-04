@@ -8,25 +8,20 @@ from edc_base.view_mixins import EdcBaseViewMixin
 class ScreeningReportsViewMixin(EdcBaseViewMixin):
 
     subject_screening_model = 'esr21_subject.eligibilityconfirmation'
-    screening_eligibility_model = 'esr21_subject.screeningeligibility'
-    eligibility_model = 'esr21_subject.eligibilityconfirmation'
     consent_model = 'esr21_subject.informedconsent'
     vaccination_model = 'esr21_subject.vaccinationdetails'
-    screening_eligibility_model = 'esr21_subject.screeningeligibility'
     pregnancy_test_model = 'esr21_subject.pregnancytest'
     onschedule_model = 'esr21_subject.onschedule'
+    eligibility_model = 'esr21_subject.eligibilityconfirmation'
+    
+    
+    @property
+    def eligibility_model_cls(self):
+        return django_apps.get_model(self.eligibility_model)
 
     @property
     def subject_screening_cls(self):
         return django_apps.get_model(self.subject_screening_model)
-
-    @property
-    def screening_eligibility_cls(self):
-        return django_apps.get_model(self.screening_eligibility_model)
-
-    @property
-    def eligibility_model_cls(self):
-        return django_apps.get_model(self.eligibility_model)
 
     @property
     def consent_model_cls(self):
@@ -165,10 +160,10 @@ class ScreeningReportsViewMixin(EdcBaseViewMixin):
                             else:
                                 data.append([fail.site_id, 'Pregnant'])
         return data
-    
+
     @property
     def screening_statistics_preprocessor(self):
-        statistics =  self.cache_preprocessor('screening_statistics')
+        statistics = self.cache_preprocessor('screening_statistics')
         return statistics
 
     def get_context_data(self, **kwargs):

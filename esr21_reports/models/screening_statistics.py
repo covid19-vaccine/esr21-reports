@@ -19,12 +19,14 @@ class ScreeningStatistics(BaseUuidModel):
         unique=True
     )
 
-    passed = models.PositiveIntegerField(
-        verbose_name='Passed Screening',
-        default=0
+    dose1 = models.PositiveIntegerField(
+        verbose_name='First dose screening',
     )
 
-    failed = models.PositiveIntegerField(
-        verbose_name='Failed Screening',
-        default=0
+    dose2 = models.PositiveIntegerField(
+        verbose_name='Second dose screening',
+    )
+
+    dose3 = models.PositiveIntegerField(
+        verbose_name='Booster dose screening',
     )

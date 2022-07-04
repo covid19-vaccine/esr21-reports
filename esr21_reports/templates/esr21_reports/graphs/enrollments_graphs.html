@@ -46,196 +46,223 @@
 	  background: #f1f7ff;
 	}
 </style>
-	<div class="row">
-	
+<div class="row">
 	<div class="col-md-6">
-			<figure class="highcharts-figure">
-				<div id="stacked-graph"></div>
-				<p class="highcharts-description">
-					Chart showing a combination of a column and a line chart, using multiple
-					y-axes. Using multiple axes allows for data within different ranges to
-					be visualized together. 
-					
-					The graph shows overall enrollment per site
-				</p>
-			</figure>
-	    	<script>
-	    		  Highcharts.chart('stacked-graph', {
-					chart: {
-						zoomType: 'xy'
-					},
+		<figure class="highcharts-figure">
+			<div id="total_enrolled"></div>
+			<p class="highcharts-description">
+				Bar chart shows a comparison of first dose and second dose for all sites.
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('total_enrolled', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: 'First & second and booster dose enrollments'
+				},
+				xAxis: {
+					categories: ['First dose', 'Second dose', 'Booster dose'],
 					title: {
-						text: 'Enrolled Per Site'
+						text: null
+					}
+				},
+				yAxis: {
+					
+					title: {
+						text: 'First & second and booster dose enrollments',
+						align: 'high'
 					},
-					subtitle: {
-						text: 'Total enrolled regardless of gender'
-					},
-					xAxis: [{
-						categories: {{  site_names | safe }},
-						crosshair: true
-					}],
-					yAxis: [{ // Primary yAxis
-						max: 100,
-						labels: {
-						style: {
-							color: Highcharts.getOptions().colors[1]
+					labels: {
+						overflow: 'justify'
+					}
+				},
+				plotOptions: {
+					bar: {
+						dataLabels: {
+							enabled: true
 						}
-						},
-						title: {
-						text: 'Enrollments By Percentage',
-						style: {
-							color: Highcharts.getOptions().colors[1]
-						}
-						}
-					}, { // Secondary yAxis
-						title: {
-						text: 'Number of Enrollments',
-						style: {
-							color: Highcharts.getOptions().colors[0]
-						}
-						},
-						labels: {
-						style: {
-							color: Highcharts.getOptions().colors[0]
-						}
-						},
-						opposite: true
-					}],
-					tooltip: {
-						shared: true
-					},
-					legend: {
-						layout: 'vertical',
-						align: 'left',
-						x: 120,
-						verticalAlign: 'top',
-						y: 100,
-						floating: true,
-						backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || // theme
-						'rgba(255,255,255,0.25)'
-					},
-					series: [{
-						name: 'Sites',
-						type: 'column',
-						yAxis: 1,
-						valueSuffix: '%',
-						data: {{ overall }},
-	
-					}, {
-						name: 'Enrolled By Percentage',
-						type: 'spline',
-						data: {{ overall_percentages }},
-						tooltip: {
-						valueSuffix: '%'
-						}
-					}]
-				});
-
-	    	</script>
-	    </div>
-	
-	
+					}
+				},
+				credits: {
+					enabled: false
+				},
+				series: [{
+					name:'dose',
+					data: {{ total_enrolled }}
+				},]
+			});
+		</script>
+	</div>
 	<div class="col-md-6">
-			<figure class="highcharts-figure">
-			  <div id="splineChart"></div>
-			  <p class="highcharts-description">The line graph shows enrolled participants by gender per site </p>
-			</figure>
-		       <script>
-			       var colors = Highcharts.getOptions().colors;
-	
-			       Highcharts.chart('splineChart', {
-			         chart: {
-			           type: 'spline'
-			         },
-	
-			         legend: {
-			           symbolWidth: 40
-			         },
-	
-			         title: {
-			           text: 'Enrolled participants by gender per site'
-			         },
-	
-			         yAxis: {
-			           title: {
-			             text: 'Enrollment Percentages'
-			           },
-			           accessibility: {
-			             description: 'Enrollment Percentages',
-			           },
+		<figure class="highcharts-figure1">
+			<div id="container4"></div>
+			<p class="highcharts-description">
+				
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('container4', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: 'First & second and booster dose enrollments per site'
+				},
+				xAxis: {
+					categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'Phikwe']
+				},
+				yAxis: {
+					min: 0,
+					title: {
+						text: 'Total Screening'
+				},
+				stackLabels: {
+					enabled: true,
+					style: {
+						fontWeight: 'bold',
+						color: ( // theme
+							Highcharts.defaultOptions.title.style &&
+							Highcharts.defaultOptions.title.style.color
+						) || 'gray'
+					}
+				}
+				},
+				legend: {
+				  align: 'right',
+				  x: -30,
+				  verticalAlign: 'top',
+				  y: 25,
+				  floating: true,
+				  backgroundColor:
+					Highcharts.defaultOptions.legend.backgroundColor || 'white',
+				  borderColor: '#CCC',
+				  borderWidth: 1,
+				  shadow: false
+				},
+				tooltip: {
+				  headerFormat: '<b>{point.x}</b><br/>',
+				  pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+				},
+				plotOptions: {
+				  column: {
+					stacking: 'normal',
+					dataLabels: {
+					  enabled: true
+					}
+				  }
+				},
+				series: [{
+				  name: 'Booster dose',
+				  data: {{ booster_dose_at_enrollment }}
+				}, {
+				  name: '2nd dose',
+				  data: {{ second_dose_at_enrollment }}
+				}, {
+				  name: '1st dose',
+				  data: {{ first_dose_enrollment }}
+				}]
+			  });
+		</script>
+	</div>
+</div>
 
-			         },
-	
-			         xAxis: {
-			           title: {
-			             text: 'Study Site'
-			           },
-			           accessibility: {
-			             description: 'Study Site',
-
-			           },
-			           categories: {{ site_names | safe }},
-			         },
-	
-			         tooltip: {
-			           	valueSuffix: '%'
-			         },
-	
-			         plotOptions: {
-			           series: {
-			             point: {
-			               events: {
-			                 click: function () {
-			                   window.location.href = this.series.options.website;
-			                 }
-			               }
-			             },
-			             cursor: 'pointer'
-			           }
-			         },
-	
-			         series: [
-			           {
-			             name: 'Male',
-			             data: {{ males }},
-			             color: colors[2],
-			             accessibility: {
-			               description: 'This is the most used screen reader in 2019'
-			             }
-			           },{
-			             name: 'Female',
-			             data: {{ females }},
-			             color: colors[3],
-						 valueSuffix: '%',
-
-
-			           }
-			         ],
-	
-			         responsive: {
-			           rules: [{
-			             condition: {
-			               maxWidth: 550
-			             },
-			             chartOptions: {
-			               chart: {
-			                 spacingLeft: 3,
-			                 spacingRight: 3
-			               },
-			               legend: {
-			                 itemWidth: 150
-			               },
-			               xAxis: {
-			                 categories: {{ site_names | safe }},
-			                 title: ''
-			               },
-			               yAxis: {
-			                 visible: true
-			               }
-			             }
-			           }]
-			         }
-			       });
-			   </script>
-		</div>
+<div class="row">
+	<div class="col-md-6">
+		<figure class="highcharts-figure">
+			<div id="pieDoseEnrolments"></div>
+			<p class="highcharts-description">
+			 Pie chart showing screeings at different entry points
+			</p>
+		  </figure>
+		  <script>
+			Highcharts.chart('pieDoseEnrolments', {
+				chart: {
+				  plotBackgroundColor: null,
+				  plotBorderWidth: null,
+				  plotShadow: false,
+				  type: 'pie'
+				},
+				title: {
+				  text: 'AZD 1222 and other products enrollments'
+				},
+				tooltip: {
+				  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+				},
+				
+				plotOptions: {
+				  pie: {
+					allowPointSelect: true,
+					cursor: 'pointer',
+					dataLabels: {
+					  enabled: true,
+					  format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+					}
+				  }
+				},
+				series: [{
+				  name: 'Screening',
+				  colorByPoint: true,
+				  data: [{
+					name: 'AZD 122 Enrolments',
+					y: {{ pie_total_doses_enrolled.0}},
+					sliced: true,
+					selected: true
+				  }, {
+					name: 'Other Products enrolments',
+					y: {{ pie_total_doses_enrolled.1 }},
+				  },]
+				}]
+			  });
+		  </script>
+	</div>
+	<div class="col-md-6">
+		<figure class="highcharts-figure">
+			<div id="product_enrolled"></div>
+			<p class="highcharts-description">
+				Bar chart shows a comparison of first dose and second dose for all sites.
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('product_enrolled', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: 'AZD 1222 and other product enrollments'
+				},
+				xAxis: {
+					categories: ['AZD 1222', 'Others'],
+					title: {
+						text: null
+					}
+				},
+				yAxis: {
+					
+					title: {
+						text: 'AZD 1222 and other product enrollments',
+						align: 'high'
+					},
+					labels: {
+						overflow: 'justify'
+					}
+				},
+				plotOptions: {
+					bar: {
+						dataLabels: {
+							enabled: true
+						}
+					}
+				},
+				credits: {
+					enabled: false
+				},
+				series: [{
+					name:'product',
+					data: {{ pie_total_doses_enrolled }}
+				},]
+			});
+		</script>
+	</div>
 </div>

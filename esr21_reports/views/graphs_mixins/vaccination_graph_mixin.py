@@ -21,7 +21,7 @@ class VaccinationGraphMixin(EdcBaseViewMixin):
             ).values_list(
                 'subject_visit__subject_identifier',
                 flat=True).distinct().count()
-        return self.get_percentage(site_vaccination)
+        return site_vaccination
 
     def overal_site_dose_vaccination(self, site_id=None):
         site_vaccination = self.vaccination_details_cls.objects.filter(
@@ -29,7 +29,7 @@ class VaccinationGraphMixin(EdcBaseViewMixin):
             ).values_list(
                 'subject_visit__subject_identifier',
                 flat=True).distinct().count()
-        return self.get_percentage(site_vaccination)
+        return site_vaccination
 
     @property
     def vaccines(self):
