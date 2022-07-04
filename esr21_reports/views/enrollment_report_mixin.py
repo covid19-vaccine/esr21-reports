@@ -120,19 +120,37 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
         return ['Booster dose at enrollment', sum(totals), *totals]
 
     @property
+    def screening_for_second_dose(self):
+        # Screening for second dose enrolment
+        dose1_ids = self.vaccination_history_model_cls.objects.filter(
+            dose_quantity=1).exclude(
+                dose1_product_name='azd_1222').values_list(
+                    'subject_identifier', flat=True)
+        totals = []
+        for site_id in range(40, 45):
+            total = self.screening_eligibility_cls.objects.filter(
+                subject_identifier__in=dose1_ids, site_id=site_id
+                ).distinct().count()
+            totals.append(total)
+
+        return ['Screening for second dose', sum(totals), *totals]
+
+    @property
     def screening_for_booster_dose(self):
         # Screening for booster dose enrolment
         sites = Site.objects.all()
-        dose2_ids = self.vaccination_history_model_cls.objects.filter(dose_quantity=2).exclude(Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list('subject_identifier', flat=True)
+        dose2_ids = self.vaccination_history_model_cls.objects.filter(
+            dose_quantity=2).exclude(Q(dose1_product_name='azd_1222') |
+                                     Q(dose2_product_name='azd_1222')
+                                     ).values_list('subject_identifier',
+                                                   flat=True)
         totals = []
-
         for site in sites:
-            total = self.screening_eligibility_cls.objects.filter(subject_identifier__in=dose2_ids, site_id=site.id).distinct().count()
+            total = self.screening_eligibility_cls.objects.filter(
+                subject_identifier__in=dose2_ids, site_id=site.id).distinct().count()
             totals.append(total)
 
-        return [
-            'Screening for booster dose', sum(totals), *totals
-        ]
+        return ['Screening for booster dose', sum(totals), *totals]
 
     @property
     def enrolled_participants(self):
