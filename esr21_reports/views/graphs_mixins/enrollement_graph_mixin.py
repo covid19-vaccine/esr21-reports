@@ -12,7 +12,7 @@ from ...models import VaccinationEnrollments
 class EnrollmentGraphMixin(EdcBaseViewMixin):
 
     enrollment_stats_model = 'esr21_reports.enrollmentstatistics'
-    
+
     doses = ['sinovac', 'pfizer', 'moderna', 'janssen', 'astrazeneca']
 
     @property
@@ -72,6 +72,16 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
         return sum(total_doses)
 
     @property
+    def second_booster_enrolment_comparison(self):
+        doses = VaccinationEnrollments.objects.all()
+        total_doses = []
+        for dose in doses:
+            total = dose.sinovac+dose.pfizer+dose.astrazeneca+dose.moderna+dose.janssen
+            total_doses.append([dose.sinovac, dose.pfizer, dose.astrazeneca,
+                                dose.moderna, dose.janssen, total])
+        return total_doses
+
+    @property
     def pie_total_doses_enrolled(self):
         other_vaccines = self.total_2nd_booster_enrollments
         total = VaccinationDetails.objects.filter(received_dose_before='first_dose').distinct().count()
@@ -96,11 +106,10 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
     @property
     def second_dose_at_enrollment(self):
         totals = []
-
         ids = self.vaccination_history_cls.objects.filter(
             Q(dose_quantity=1)).exclude(
-            Q(dose1_product_name='azd_1222')).values_list('subject_identifier',
-                                                          flat=True)
+            Q(dose1_product_name='azd_1222')).values_list(
+                'subject_identifier', flat=True)
 
         for site_id in range(40, 45):
             total_second_dose = self.vaccination_model_cls.objects.filter(
@@ -163,6 +172,8 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
             second_dose_at_enrollment=self.second_dose_at_enrollment,
             booster_dose_at_enrollment=self.booster_dose_at_enrollment,
             first_dose_enrollment=self.first_dose_enrollment,
-            pie_total_doses_enrolled=self.pie_total_doses_enrolled
+            pie_total_doses_enrolled=self.pie_total_doses_enrolled,
+            second_booster_enrolment_comparison=self.second_booster_enrolment_comparison,
+            doses=[*self.doses,'Total']
         )
         return context

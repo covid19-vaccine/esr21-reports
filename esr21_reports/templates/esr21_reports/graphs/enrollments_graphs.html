@@ -60,7 +60,7 @@
 					type: 'column'
 				},
 				title: {
-					text: 'First & second and booster dose enrollments'
+					text: 'First, second and booster dose enrollments'
 				},
 				xAxis: {
 					categories: ['First dose', 'Second dose', 'Booster dose'],
@@ -71,7 +71,7 @@
 				yAxis: {
 					
 					title: {
-						text: 'First & second and booster dose enrollments',
+						text: 'First, second and booster dose enrollments',
 						align: 'high'
 					},
 					labels: {
@@ -108,7 +108,7 @@
 					type: 'column'
 				},
 				title: {
-					text: 'First & second and booster dose enrollments per site'
+					text: 'First, second and booster dose enrollments per site'
 				},
 				xAxis: {
 					categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'Phikwe']
@@ -261,6 +261,105 @@
 				series: [{
 					name:'product',
 					data: {{ pie_total_doses_enrolled }}
+				},]
+			});
+		</script>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-6">
+		<figure class="highcharts-figure">
+			<div id="product1_enrolled"></div>
+			<p class="highcharts-description">
+				Bar chart shows a vaccines taken by participants who received Second dose.
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('product1_enrolled', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: 'Vaccines taken by participants who received Second dose.'
+				},
+				xAxis: {
+					categories: [{% for dose in doses %}  '{{ dose }}',  {% endfor %}],
+					title: {
+						text: null
+					}
+				},
+				yAxis: {
+					
+					title: {
+						text: 'Vaccines taken by participants who received Second dose.',
+						align: 'high'
+					},
+					labels: {
+						overflow: 'justify'
+					}
+				},
+				plotOptions: {
+					bar: {
+						dataLabels: {
+							enabled: true
+						}
+					}
+				},
+				credits: {
+					enabled: false
+				},
+				series: [{
+					name:'product',
+					data: {{ second_booster_enrolment_comparison.0 }}
+				},]
+			});
+		</script>
+	</div>
+	<div class="col-md-6">
+		<figure class="highcharts-figure">
+			<div id="product2_enrolled"></div>
+			<p class="highcharts-description">
+				Bar chart shows a vaccines taken by participants who received Booster dose.
+			</p>
+		</figure>
+		<script>
+			Highcharts.chart('product2_enrolled', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: 'vaccines taken by participants who received Booster dose'
+				},
+				xAxis: {
+					categories: [{% for dose in doses %}  '{{ dose }}',  {% endfor %}],
+					title: {
+						text: null
+					}
+				},
+				yAxis: {
+					
+					title: {
+						text: 'vaccines taken by participants who received Booster dose',
+						align: 'high'
+					},
+					labels: {
+						overflow: 'justify'
+					}
+				},
+				plotOptions: {
+					bar: {
+						dataLabels: {
+							enabled: true
+						}
+					}
+				},
+				credits: {
+					enabled: false
+				},
+				series: [{
+					name:'product',
+					data: {{ second_booster_enrolment_comparison.1 }}
 				},]
 			});
 		</script>
