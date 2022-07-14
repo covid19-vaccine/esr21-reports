@@ -37,6 +37,9 @@
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
 	<script src="https://code.highcharts.com/highcharts.src.js"></script>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
 	
 
@@ -59,7 +62,7 @@
 
 <div class="container">
 
-<center><h1>STUDY Progress Report</h1></center>
+<center><h2>STUDY Progress Report</h2></center>
 <hr>
 <div class="alert alert-success" role="alert">
     Last updated {{ updated_at }}
@@ -95,23 +98,53 @@
    </div>
 </div>
 <hr>
-<center><h3>Enrollments</h3></center>
-<hr>
-{% include './study_progress/enrollments.html' %}
 
-{% include './study_progress/homologous_series.html' %}
-
-{% include './study_progress/heterologous_series.html' %}
-
-<hr>
-<center><h3>Demographics</h3></center>
-<hr>
- {% include './study_progress/demographics.html' %}
- 
- <hr>
-<center><h3>Adverse Events</h3></center>
-<hr>
- {% include './study_progress/adverse_events.html' %}
+<nav class="tab-pane fade in active">
+	<ul class="nav nav-tabs">
+		<li class="nav nav-tabs active">
+			<a data-toggle="tab" href="#sae_menu1">Homologous Series</a>
+		</li>
+		<li><a class='tabs' data-toggle="tab" href="#sae_menu2">Heterologous Series</a></li>
+	</ul>
+</nav>
+<div class="tab-content">
+	<div id="sae_menu1" class="tab-pane fade in active">
+		<center><h3>Homologous Enrollments</h3></center>
+		<hr>
+		{% include './study_progress/homologous/enrollments.html' %}
+		
+		{% include './study_progress/homologous_series.html' %}
+		
+		<hr>
+		<center><h3>Demographics</h3></center>
+		<hr>
+		 {% include './study_progress/homologous/demographics.html' %}
+		 
+		 <hr>
+		<center><h3>Adverse Events</h3></center>
+		<hr>
+		 {% include './study_progress/homologous/adverse_events.html' %}
+	</div>
+	<div id="sae_menu2" class="tab-pane fade">
+        <center><h3>Heterologous Enrollments</h3></center>
+		<hr>
+		{% include './study_progress/heterologous/enrollments.html' %}
+		
+		{% include './study_progress/heterologous_series.html' %}
+		
+		<hr>
+		<center><h3>Demographics</h3></center>
+		<hr>
+		 {% include './study_progress/heterologous/demographics.html' %}
+		 
+		 <hr>
+		<center><h3>Adverse Events</h3></center>
+		<hr>
+		 {% include './study_progress/heterologous/adverse_events.html' %}
+	</div>
 </div>
+
+</div>
+
 
 {% endblock main %}
