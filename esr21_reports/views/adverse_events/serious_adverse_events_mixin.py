@@ -5,8 +5,7 @@ from .serious_adverse_event_mixin import SeriousAdverseEventRecordMixin
 
 class SeriousAdverseEventRecordViewMixin(EdcBaseViewMixin,
                                          SeriousAdverseEventRecordMixin):
-    
-    
+
     @property
     def sae_statistics(self):
         return dict(

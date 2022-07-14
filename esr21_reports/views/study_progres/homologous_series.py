@@ -10,7 +10,8 @@ class HomologousSeries(EdcBaseViewMixin):
         context.update(
             homologous_enrollments=self.site_enrollments,
             homologous_vaccinations=self.site_vaccinations,
-            demographics_data=self.site_demographics
+            demographics_data=self.site_demographics,
+            adverse_events=self.site_adverse_events,
         )
         return context
 
@@ -189,5 +190,31 @@ class HomologousSeries(EdcBaseViewMixin):
             diabetes
         ]
 
+    @property
     def site_adverse_events(self):
-        pass
+        aes = []
+        saes = []
+        aesi = []
+        for site_id in self.sites_ids:
+            site_ae = self.ae_record_cls.objects.filter(
+                adverse_event__subject_visit__subject_identifier__in=self.homologous_list,
+                adverse_event__subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+            ).distinct().count()
+            site_sae = self.sae_record_cls.objects.filter(
+                serious_adverse_event__subject_visit__subject_identifier__in=self.homologous_list,
+                serious_adverse_event__subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+            ).distinct().count()
+            site_aesi = self.aei_record_cls.objects.filter(
+                special_interest_adverse_event__subject_visit__subject_identifier__in=self.homologous_list,
+                special_interest_adverse_event__subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+            ).distinct().count()
+
+            aes.append(site_ae)
+            saes.append(site_sae)
+            aesi.append(site_aesi)
+
+        aes.append(sum(aes))
+        saes.append(sum(saes))
+        aesi.append(sum(aesi))
+
+        return [aes, saes, aesi]

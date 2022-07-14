@@ -22,6 +22,9 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
     rapid_hiv_testing_model = 'esr21_subject.rapidhivtesting'
     pregnancy_model = 'esr21_subject.pregnancytest'
     medical_history_Model = 'esr21_subject.medicalhistory'
+    ae_record_model = 'esr21_subject.adverseeventrecord'
+    sae_record_model = 'esr21_subject.seriousadverseeventrecord'
+    aei_record_model = 'esr21_subject.specialinterestadverseeventrecord'
 
     @property
     def vaccination_model_cls(self):
@@ -50,6 +53,18 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
     @property
     def onschedule_model_cls(self):
         return django_apps.get_model(self.onschedule_model)
+
+    @property
+    def sae_record_cls(self):
+        return django_apps.get_model(self.sae_record_model)
+
+    @property
+    def aei_record_cls(self):
+        return django_apps.get_model(self.aei_record_model)
+
+    @property
+    def ae_record_cls(self):
+        return django_apps.get_model(self.ae_record_model)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
