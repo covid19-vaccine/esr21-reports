@@ -25,6 +25,7 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
     ae_record_model = 'esr21_subject.adverseeventrecord'
     sae_record_model = 'esr21_subject.seriousadverseeventrecord'
     aei_record_model = 'esr21_subject.specialinterestadverseeventrecord'
+    screening_eligibility_model = 'esr21_subject.screeningeligibility'
 
     @property
     def vaccination_model_cls(self):
@@ -66,11 +67,16 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
     def ae_record_cls(self):
         return django_apps.get_model(self.ae_record_model)
 
+    @property
+    def screening_eligibility_cls(self):
+        return django_apps.get_model(self.screening_eligibility_model)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
             total_stats=self.total_stats,
-            sites_names=self.sites_names
+            sites_names=self.sites_names,
+            site_screening=self.site_screening
         )
         return context
 
@@ -113,3 +119,49 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
                 'subject_visit__subject_identifier',
                 flat=True).distinct().count()
         return total
+
+    @property
+    def site_screening(self):
+        dose_1_screening = []
+        dose_2_screening = []
+        dose_3_screening = []
+        totals = []
+
+        dose_2_ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=1).exclude(
+                dose1_product_name='azd_1222'
+                ).values_list('subject_identifier', flat=True)
+        dose_3_ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=2).exclude(
+                Q(dose1_product_name='azd_1222') |
+                Q(dose2_product_name='azd_1222')).values_list(
+                    'subject_identifier', flat=True)
+
+        for site_id in self.sites_ids:
+            site_dose_2_screenings = self.screening_eligibility_cls.objects.filter(
+                subject_identifier__in=dose_2_ids, site_id=site_id).distinct().count()
+            site_dose_3_screenings = self.screening_eligibility_cls.objects.filter(
+                subject_identifier__in=dose_3_ids, site_id=site_id).distinct().count()
+            dose_2_screening.append(site_dose_2_screenings)
+            dose_3_screening.append(site_dose_3_screenings)
+
+            site_dose_1_screenings = self.screening_eligibility_cls.objects.filter(
+                site_id=site_id).distinct().count()
+            total = site_dose_2_screenings + site_dose_3_screenings
+            site_dose_1_screenings = site_dose_1_screenings - total
+            dose_1_screening.append(site_dose_1_screenings)
+
+            total = site_dose_1_screenings+site_dose_2_screenings+site_dose_3_screenings
+            totals.append(total)
+
+        dose_1_screening.append(sum(dose_1_screening))
+        dose_2_screening.append(sum(dose_2_screening))
+        dose_3_screening.append(sum(dose_3_screening))
+        totals.append(sum(totals))
+
+        return [
+            ['First dose', dose_1_screening],
+            ['Second dose', dose_2_screening],
+            ['Booster dose', dose_3_screening],
+            ['Totals', totals]
+            ]

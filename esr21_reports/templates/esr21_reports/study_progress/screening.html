@@ -8,56 +8,29 @@
 	  <table class="table table-hover">
 		  <thead>
 		    <tr>
-		      <th scope="col">Site</th>
-		      <th scope="col">First Dose</th>
-		      <th scope="col">Second Dose</th>
-		      <th scope="col">Booster</th>
+		      <th scope="col">Vaccine</th>
+			  {% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
 		      <th scope="col">Totals</th>
 		    </tr>
 		  </thead>
 		  <tbody>
 		    <tr>
-		      <td>Gaborone</td>
-		      <td>2343</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>100</td>
+		      <td>{{ site_screening.0.0 }}</td>
+			  {% for data in site_screening.0.1 %}  <td>{{ data }}</td>  {% endfor %}
 		    </tr>
-		    <tr>
-		      <td>Serowe</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>100</td>
-		    </tr>
-		    <tr>
-		      <td>Francistown</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>100</td>
-		    </tr>
-		    <tr>
-		      <td>Maun</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>100</td>
-		    </tr>
-		    <tr>
-		      <td>Phikwe</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>100</td>
-		    </tr>
-		    <tr>
-		      <td>Overall</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>23</td>
-		      <td>100</td>
-		    </tr>
+			<tr>
+				<td>{{ site_screening.1.0 }}</td>
+				{% for data in site_screening.1.1 %}  <td>{{ data }}</td>  {% endfor %}
+			</tr>
+			<tr>
+				<td>{{ site_screening.2.0 }}</td>
+				{% for data in site_screening.2.1 %}  <td>{{ data }}</td>  {% endfor %}
+			</tr>
+			<tr>
+				<td>{{ site_screening.3.0 }}</td>
+				{% for data in site_screening.3.1 %}  <td>{{ data }}</td>  {% endfor %}
+			</tr>
+		   
 		  </tbody>
 		</table>
 	  </div>
