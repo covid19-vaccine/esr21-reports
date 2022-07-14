@@ -2,8 +2,6 @@
 {% load static %}
 {% block extra-styles %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 <style>
@@ -38,8 +36,8 @@
 	<script src="https://code.highcharts.com/highcharts.src.js"></script>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 	
-	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
 	
 
@@ -109,7 +107,7 @@
 </nav>
 <div class="tab-content">
 	<div id="sae_menu1" class="tab-pane fade in active">
-		<center><h3>Homologous Enrollments</h3></center>
+		<center><h3>Enrollments</h3></center>
 		<hr>
 		{% include './study_progress/homologous/enrollments.html' %}
 		
@@ -126,7 +124,7 @@
 		 {% include './study_progress/homologous/adverse_events.html' %}
 	</div>
 	<div id="sae_menu2" class="tab-pane fade">
-        <center><h3>Heterologous Enrollments</h3></center>
+        <center><h3>Enrollments</h3></center>
 		<hr>
 		{% include './study_progress/heterologous/enrollments.html' %}
 		
