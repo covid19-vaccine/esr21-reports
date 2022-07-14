@@ -43,3 +43,5 @@ class VaccinationEnrollments(BaseUuidModel):
         verbose_name='Astrazeneca Enrollments',
         default=0
     )
+
+    months = models.TextField()

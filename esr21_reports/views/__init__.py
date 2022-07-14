@@ -3,4 +3,4 @@ from .graphs_report_view import GraphsView
 from .home_view import HomeView
 from .lab_report import LabView
 from .psrt_view import PSRTView
-from .study_progress import StudyProgressView
+from .study_progres import StudyProgressView
