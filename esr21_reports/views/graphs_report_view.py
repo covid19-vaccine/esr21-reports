@@ -3,7 +3,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
 
 from .graphs_mixins import ScreeningGraphMixin, AgeDistributionGraphMixin, \
-    EnrollmentGraphMixin, VaccinationGraphMixin, Missed2ndDoseGraphMixin
+    EnrollmentGraphMixin, VaccinationGraphMixin
 
 from .site_helper_mixin import SiteHelperMixin
 

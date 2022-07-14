@@ -1,0 +1,117 @@
+{% extends 'edc_base/base.html' %}
+{% load static %}
+{% block extra-styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<style>
+.row{
+    margin-top:10px;
+    padding: 0 10px;
+}
+
+.clickable{
+    cursor: pointer;   
+}
+
+.panel-heading span {
+	margin-top: -20px;
+	font-size: 15px;
+}
+
+
+.my-card
+{
+    position:absolute;
+    left:40%;
+    top:-20px;
+    border-radius:50%;
+}
+</style>
+{% endblock extra-styles %}
+
+{% block extra-scripts %}
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
+	<script src="https://code.highcharts.com/highcharts.src.js"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+	
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+        <script type="text/javascript" src="{% static 'js/Chart.min.js' %}"></script>
+        <script type="text/javascript">
+            $.get('{% url "esr21_reports:line_chart_json_url" %}', function(data) {
+				console.log(data);
+                var ctx = $("#myChart33").get(0).getContext("2d");
+                new Chart(ctx, {
+                    type: 'line', data: data
+                });
+            });
+        </script>
+
+{% endblock extra-scripts %}
+
+
+{% block main %}
+
+<div class="container">
+
+<center><h1>STUDY Progress Report</h1></center>
+<hr>
+<div class="alert alert-success" role="alert">
+    Last updated {{ updated_at }}
+    <span class="pull-right">
+    	<a href="#" class="btn btn-info btn-lg btn-sm" role="button">Refresh data</a>
+    </span>
+</div>
+
+<div class="row w-100">
+   <div class="col-md-3">
+       <div class="card border-info mx-sm-1 p-3">
+           <div class="text-info text-center mt-3"><h4>Total Enrolled</h4></div>
+           <div class="text-info text-center mt-2"><h1>234</h1></div>
+       </div>
+   </div>
+   <div class="col-md-3">
+       <div class="card border-success mx-sm-1 p-3">
+           <div class="text-success text-center mt-3"><h4>First Dose</h4></div>
+           <div class="text-success text-center mt-2"><h1>9332</h1></div>
+       </div>
+   </div>
+   <div class="col-md-3">
+       <div class="card border-danger mx-sm-1 p-3">
+           <div class="text-danger text-center mt-3"><h4>Second Dose</h4></div>
+           <div class="text-danger text-center mt-2"><h1>346</h1></div>
+       </div>
+   </div>
+   <div class="col-md-3">
+       <div class="card border-warning mx-sm-1 p-3">
+           <div class="text-warning text-center mt-3"><h4>Booster</h4></div>
+           <div class="text-warning text-center mt-2"><h1>346</h1></div>
+       </div>
+   </div>
+</div>
+<hr>
+<center><h3>Enrollments</h3></center>
+<hr>
+{% include './study_progress/enrollments.html' %}
+
+{% include './study_progress/homologous_series.html' %}
+
+{% include './study_progress/heterologous_series.html' %}
+
+<hr>
+<center><h3>Demographics</h3></center>
+<hr>
+ {% include './study_progress/demographics.html' %}
+ 
+ <hr>
+<center><h3>Adverse Events</h3></center>
+<hr>
+ {% include './study_progress/adverse_events.html' %}
+</div>
+
+{% endblock main %}
