@@ -76,28 +76,27 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
 
     def total_stats(self):
         first_dose = self.vaccination_model_cls.objects.filter(
-            received_dose_before='first_dose').count()
-        second_dose = self.vaccination_model_cls.objects.filter(
-            received_dose_before='second_dose').count()
-        booster_dose = self.vaccination_model_cls.objects.filter(
-            received_dose_before='booster_dose').count()
+            received_dose_before='first_dose').distinct().count()
         overall_enrollment = first_dose+self.second_dose_enrollment+self.booster_dose_enrollment
 
         return [
             overall_enrollment,
             first_dose,
-            second_dose,
-            booster_dose
+            self.second_dose_enrollment,
+            self.booster_dose_enrollment
         ]
 
     @property
     def second_dose_enrollment(self):
-        ids = self.vaccination_history_cls.objects.filter(Q(dose_quantity=1)).exclude(
-            Q(dose1_product_name='azd_1222')).values_list('subject_identifier',flat=True)
+        ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=1).exclude(
+                Q(dose1_product_name='azd_1222')).values_list(
+                    'subject_identifier', flat=True)
         total = self.vaccination_model_cls.objects.filter(
                 received_dose_before='second_dose',
                 subject_visit__subject_identifier__in=ids).values_list(
-                    'subject_visit__subject_identifier', flat=True).distinct().count()
+                    'subject_visit__subject_identifier',
+                    flat=True).distinct().count()
         return total
 
     @property
