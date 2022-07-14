@@ -21,6 +21,7 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
     informed_consent_model = 'esr21_subject.informedconsent'
     rapid_hiv_testing_model = 'esr21_subject.rapidhivtesting'
     pregnancy_model = 'esr21_subject.pregnancytest'
+    medical_history_Model = 'esr21_subject.medicalhistory'
 
     @property
     def vaccination_model_cls(self):
@@ -41,6 +42,10 @@ class StudyProgressView(NavbarViewMixin, TemplateView,
     @property
     def pregnancy_model_cls(self):
         return django_apps.get_model(self.pregnancy_model)
+
+    @property
+    def medical_history_cls(self):
+        return django_apps.get_model(self.medical_history_Model)
 
     @property
     def onschedule_model_cls(self):

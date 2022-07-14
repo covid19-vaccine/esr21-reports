@@ -7,11 +7,7 @@
 	        <thead>
 	            <tr>
 	            	<th class="column_head">Variables</th>
-	                <th class="column_head">Gaborone</th>
-	                <th class="column_head">Serowe</th>
-	                <th class="column_head">Maun</th>
-	                <th class="column_head">Francistown</th>
-	                <th class="column_head">S/Phikwe</th>
+					{% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
 	                <th class="column_head">Totals</th>
 	            </tr>
 	        </thead>
@@ -25,21 +21,11 @@
 	           </tr>
 	           <tr>
 	           <td>Male</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
+			   {% for data in demographics_data.0 %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           <tr>
 	           <td>Female</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
+			   {% for data in demographics_data.1 %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	
 	           <tr grouplength="10">
@@ -48,31 +34,16 @@
 	               </td>
 	           </tr>
 			   <tr>
-	            <td>Negative</td>
-	            <td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
-	           </tr>
-	           <tr>
 	            <td>Positive</td>
-	            <td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
+				{% for data in demographics_data.2 %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           <tr>
-	            <td>Unknown</td>
-	            <td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
+	            <td>Negative</td>
+	            {% for data in demographics_data.3 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	           <tr>
+	            <td>Indeterminate</td>
+				{% for data in demographics_data.4 %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	
 	           <tr>
@@ -84,12 +55,7 @@
 	           </tr>
 	           <tr>
 	            <td>Positive</td>
-	            <td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
+				{% for data in demographics_data.5 %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           
 	           <tr grouplength="10">
@@ -99,12 +65,7 @@
 	           </tr>
 	           <tr>
 	            <td>Positive</td>
-	            <td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
+				{% for data in demographics_data.6 %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           </tbody>
 	       </table>

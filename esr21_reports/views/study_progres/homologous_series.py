@@ -1,5 +1,6 @@
+from django.db.models import Q
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_constants.constants import POS, NEG, UNKNOWN
+from edc_constants.constants import POS, NEG, YES, IND
 
 
 class HomologousSeries(EdcBaseViewMixin):
@@ -8,13 +9,14 @@ class HomologousSeries(EdcBaseViewMixin):
         context = super().get_context_data(**kwargs)
         context.update(
             homologous_enrollments=self.site_enrollments,
-            homologous_vaccinations=self.site_vaccinations
+            homologous_vaccinations=self.site_vaccinations,
+            demographics_data=self.site_demographics
         )
         return context
 
     @property
     def homologous_list(self):
-        self.vaccination_model_cls.objects.filter(
+        return self.vaccination_model_cls.objects.filter(
             received_dose_before='first_dose'
             ).values_list('subject_visit__subject_identifier').distinct()
 
@@ -89,13 +91,13 @@ class HomologousSeries(EdcBaseViewMixin):
             dose_2 = self.vaccination_model_cls.objects.filter(
                 received_dose_before='second_dose',
                 site_id=site_id,
-                subject_visit__subject_identifier__in=self.dose_1
+                subject_visit__subject_identifier__in=dose_1
                 ).values_list('subject_visit__subject_identifier').distinct().count()
 
             dose_3 = self.vaccination_model_cls.objects.filter(
                 received_dose_before='booster_dose',
                 site_id=site_id,
-                subject_visit__subject_identifier__in=self.dose_1
+                subject_visit__subject_identifier__in=dose_1
                 ).values_list('subject_visit__subject_identifier').distinct().count()
 
             first_dose.append(len(dose_1))
@@ -110,6 +112,7 @@ class HomologousSeries(EdcBaseViewMixin):
             first_dose, second_dose, booster_dose
         ]
 
+    @property
     def site_demographics(self):
         males = []
         females = []
@@ -120,12 +123,12 @@ class HomologousSeries(EdcBaseViewMixin):
         diabetes = []
         for site_id in self.sites_ids:
             site_male = self.informed_consent_cls.objects.filter(
-                gender='Male', subject_identifier__startswith=f'150-0{site_id}',
+                gender='M', subject_identifier__startswith=f'150-0{site_id}',
                 subject_identifier__in=self.homologous_list
                 ).values_list('subject_identifier', flat=True).distinct().count()
 
             site_female = self.informed_consent_cls.objects.filter(
-                gender='Female', subject_identifier__startswith=f'150-0{site_id}',
+                gender='F', subject_identifier__startswith=f'150-0{site_id}',
                 subject_identifier__in=self.homologous_list
                 ).values_list('subject_identifier', flat=True).count()
 
@@ -134,27 +137,57 @@ class HomologousSeries(EdcBaseViewMixin):
 
             site_hiv_pos = self.rapid_hiv_testing_cls.objects.filter(
                 Q(hiv_result=POS) | Q(hiv_result=POS),
-                subject_identifier__startswith=f'150-0{site_id}',
-                subject_identifier__in=self.homologous_list
-                ).values_list('subject_identifier', flat=True).distinct().count()
+                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+                subject_visit__subject_identifier__in=self.homologous_list
+                ).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
 
             site_hiv_neg = self.rapid_hiv_testing_cls.objects.filter(
-                hiv_result=NEG, subject_identifier__startswith=f'150-0{site_id}',
-                subject_identifier__in=self.homologous_list
-                ).values_list('subject_identifier', flat=True).distinct().count()
+                (Q(hiv_result=NEG) | Q(rapid_test_result=NEG)),
+                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+                subject_visit__subject_identifier__in=self.homologous_list
+                ).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
 
             site_hiv_unknown = self.rapid_hiv_testing_cls.objects.filter(
-                hiv_result=UNKNOWN, subject_identifier__startswith=f'150-0{site_id}',
-                subject_identifier__in=self.homologous_list
-                ).values_list('subject_identifier', flat=True).distinct().count()
+                (Q(hiv_result=IND) | Q(rapid_test_result=IND)),
+                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+                subject_visit__subject_identifier__in=self.homologous_list
+                ).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
 
             hiv_pos.append(site_hiv_pos)
             hiv_neg.append(site_hiv_neg)
             hiv_unknown.append(site_hiv_unknown)
 
             site_pos_preg = self.pregnancy_model_cls.objects.filter(
-                subject_identifier__in=self.homologous_list,
-            )
+                subject_visit__subject_identifier__in=self.homologous_list,
+                result=POS,
+                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+            ).distinct().count()
+            pos_preg.append(site_pos_preg)
+
+            site_diabetes = self.medical_history_cls.objects.filter(
+                subject_visit__subject_identifier__in=self.homologous_list,
+                diabetes=YES,
+                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
+                ).count()
+            diabetes.append(site_diabetes)
+
+        males.append(sum(males))
+        females.append(sum(females))
+        hiv_pos.append(sum(hiv_pos))
+        hiv_neg.append(sum(hiv_neg))
+        hiv_unknown.append(sum(hiv_unknown))
+        pos_preg.append(sum(pos_preg))
+        diabetes.append(sum(diabetes))
+
+        return [
+            males,
+            females,
+            hiv_pos,
+            hiv_neg,
+            hiv_unknown,
+            pos_preg,
+            diabetes
+        ]
 
     def site_adverse_events(self):
         pass
