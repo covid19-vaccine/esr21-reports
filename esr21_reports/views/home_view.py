@@ -7,7 +7,6 @@ from django.core.mail import send_mail
 from django.views.generic import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
-from django.conf import settings
 from esr21_reports.models import DashboardStatistics
 from esr21_reports.views.psrt_mixins.summary_queries_mixins.pregnancy_summary_mixin import PregnancySummaryMixin
 from .enrollment_report_mixin import EnrollmentReportMixin

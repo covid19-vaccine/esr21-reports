@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 
-from .views import (HomeView, PSRTView, GraphsView, LabView)
+from .views import (HomeView, PSRTView, GraphsView, LabView, StudyProgressView)
 
 from .views import line_chart, line_chart_json
 
@@ -14,6 +14,7 @@ urlpatterns = [
     path('psrt', PSRTView.as_view(), name='esr21_psrt_report_url'),
     path('graphs', GraphsView.as_view(), name='esr21_graphs_report_url',),
     path('lab', LabView.as_view(), name='esr21_lab_report_url'),
+    path('study-progress', StudyProgressView.as_view(), name='esr21_study_progress_report_url'),
     path('chart', line_chart, name='line_chart_url'),
     path('chartJSON', line_chart_json, name='line_chart_json_url'),    
 
