@@ -8,33 +8,18 @@
   <table class="table table-hover">
 	  <thead>
 	    <tr>
-	      <th scope="col">Vaccinations</th>
-	      <th scope="col">Sinovac</th>
-	      <th scope="col">Pfizer</th>
-	      <th scope="col">Astrazanecca</th>
-	      <th scope="col">Moderna</th>
-	      <th scope="col">J&J</th>
-	      <th scope="col">Totals</th>
+	    	<th></th>
+	    	{% for data in heterologous_vaccinations.0.keys  %}  <th>{{ data | title }}</th>  {% endfor %}
 	    </tr>
 	  </thead>
 	  <tbody>
 	    <tr>
 	      <td>Second Dose</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>100</td>
+	      {% for data in heterologous_vaccinations.0.values  %}  <td>{{ data }}</td>  {% endfor %}
 	    </tr>
 	    <tr>
-	      <td>Boster Dose</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>100</td>
+	      <td>Booster Dose</td>
+	      {% for data in heterologous_vaccinations.1.values  %}  <td>{{ data }}</td>  {% endfor %}
 	    </tr>
 	  </tbody>
 	</table>
