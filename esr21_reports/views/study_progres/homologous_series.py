@@ -1,6 +1,4 @@
-from django.db.models import Q
 from edc_base.view_mixins import EdcBaseViewMixin
-from edc_constants.constants import POS, NEG, YES, IND
 
 
 class HomologousSeries(EdcBaseViewMixin):
@@ -10,8 +8,8 @@ class HomologousSeries(EdcBaseViewMixin):
         context.update(
             homologous_enrollments=self.site_enrollments,
             homologous_vaccinations=self.site_vaccinations,
-            demographics_data=self.site_demographics,
-            adverse_events=self.site_adverse_events,
+            demographics_data=self.site_demographics(subject_identifiers=self.homologous_list),
+            adverse_events=self.site_adverse_events(subject_identifiers=self.homologous_list),
         )
         return context
 
@@ -112,109 +110,3 @@ class HomologousSeries(EdcBaseViewMixin):
         return [
             first_dose, second_dose, booster_dose
         ]
-
-    @property
-    def site_demographics(self):
-        males = []
-        females = []
-        hiv_pos = []
-        hiv_neg = []
-        hiv_unknown = []
-        pos_preg = []
-        diabetes = []
-        for site_id in self.sites_ids:
-            site_male = self.informed_consent_cls.objects.filter(
-                gender='M', subject_identifier__startswith=f'150-0{site_id}',
-                subject_identifier__in=self.homologous_list
-                ).values_list('subject_identifier', flat=True).distinct().count()
-
-            site_female = self.informed_consent_cls.objects.filter(
-                gender='F', subject_identifier__startswith=f'150-0{site_id}',
-                subject_identifier__in=self.homologous_list
-                ).values_list('subject_identifier', flat=True).count()
-
-            males.append(site_male)
-            females.append(site_female)
-
-            site_hiv_pos = self.rapid_hiv_testing_cls.objects.filter(
-                Q(hiv_result=POS) | Q(hiv_result=POS),
-                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-                subject_visit__subject_identifier__in=self.homologous_list
-                ).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
-
-            site_hiv_neg = self.rapid_hiv_testing_cls.objects.filter(
-                (Q(hiv_result=NEG) | Q(rapid_test_result=NEG)),
-                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-                subject_visit__subject_identifier__in=self.homologous_list
-                ).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
-
-            site_hiv_unknown = self.rapid_hiv_testing_cls.objects.filter(
-                (Q(hiv_result=IND) | Q(rapid_test_result=IND)),
-                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-                subject_visit__subject_identifier__in=self.homologous_list
-                ).values_list('subject_visit__subject_identifier', flat=True).distinct().count()
-
-            hiv_pos.append(site_hiv_pos)
-            hiv_neg.append(site_hiv_neg)
-            hiv_unknown.append(site_hiv_unknown)
-
-            site_pos_preg = self.pregnancy_model_cls.objects.filter(
-                subject_visit__subject_identifier__in=self.homologous_list,
-                result=POS,
-                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-            ).distinct().count()
-            pos_preg.append(site_pos_preg)
-
-            site_diabetes = self.medical_history_cls.objects.filter(
-                subject_visit__subject_identifier__in=self.homologous_list,
-                diabetes=YES,
-                subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-                ).count()
-            diabetes.append(site_diabetes)
-
-        males.append(sum(males))
-        females.append(sum(females))
-        hiv_pos.append(sum(hiv_pos))
-        hiv_neg.append(sum(hiv_neg))
-        hiv_unknown.append(sum(hiv_unknown))
-        pos_preg.append(sum(pos_preg))
-        diabetes.append(sum(diabetes))
-
-        return [
-            males,
-            females,
-            hiv_pos,
-            hiv_neg,
-            hiv_unknown,
-            pos_preg,
-            diabetes
-        ]
-
-    @property
-    def site_adverse_events(self):
-        aes = []
-        saes = []
-        aesi = []
-        for site_id in self.sites_ids:
-            site_ae = self.ae_record_cls.objects.filter(
-                adverse_event__subject_visit__subject_identifier__in=self.homologous_list,
-                adverse_event__subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-            ).distinct().count()
-            site_sae = self.sae_record_cls.objects.filter(
-                serious_adverse_event__subject_visit__subject_identifier__in=self.homologous_list,
-                serious_adverse_event__subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-            ).distinct().count()
-            site_aesi = self.aei_record_cls.objects.filter(
-                special_interest_adverse_event__subject_visit__subject_identifier__in=self.homologous_list,
-                special_interest_adverse_event__subject_visit__subject_identifier__startswith=f'150-0{site_id}',
-            ).distinct().count()
-
-            aes.append(site_ae)
-            saes.append(site_sae)
-            aesi.append(site_aesi)
-
-        aes.append(sum(aes))
-        saes.append(sum(saes))
-        aesi.append(sum(aesi))
-
-        return [aes, saes, aesi]

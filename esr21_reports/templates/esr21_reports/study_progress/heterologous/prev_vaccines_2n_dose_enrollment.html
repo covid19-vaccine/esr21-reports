@@ -1,69 +1,38 @@
-<center><h3>Frist Dose Vaccines If Enrolled at Second Dose</h3></center><hr>
+<center><h3>First Dose Vaccines If Enrolled at Second Dose</h3></center><hr>
   <table class="table table-hover">
   <thead>
     <tr>
     	<th></th>
-    	<th>Sinovac</th>
-    	<th>Pfizer</th>
-    	<th>Astrazeneca</th>
-    	<th>Moderna</th>
-    	<th>J & J</th>
-    	<th>Totals</th>	    	
+    	{% for product in heterologous_vaccinations.0.keys %}
+    		<th>
+    			{{ product | title }}
+    		</th>
+    	{% endfor %}	    	    	
   </thead>
   <tbody>
     <tr>
       <td>Gaborone</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-    </tr>
-    <tr>
-      <td>Serowe</td>	      
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-    </tr>
-    <tr>
-      <td>Francistown</td>	      
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
+      {% for data in heterologous_vaccinations.0.values %}  <td>{{ data.0 }}</td>  {% endfor %}
     </tr>
     <tr>
       <td>Maun</td>	      
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
+      {% for data in heterologous_vaccinations.0.values %}  <td>{{ data.1 }}</td>  {% endfor %}
+    </tr>
+    <tr>
+      <td>Serowe</td>	      
+      {% for data in heterologous_vaccinations.0.values %}  <td>{{ data.2 }}</td>  {% endfor %}
+    </tr>
+    <tr>
+      <td>Francistown</td>	      
+      {% for data in heterologous_vaccinations.0.values %}  <td>{{ data.3 }}</td>  {% endfor %}
     </tr>
     <tr>
       <td>S/Phikwe</td>	      
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
+      {% for data in heterologous_vaccinations.0.values %}  <td>{{ data.4 }}</td>  {% endfor %}
     </tr>
     <tr>
       <td>Totals</td>	      
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
-      <td>12</td>
+      {% for data in heterologous_vaccinations.0.values %}  <td>{{ data.5 }}</td>  {% endfor %}
     </tr>
   </tbody>
 </table>

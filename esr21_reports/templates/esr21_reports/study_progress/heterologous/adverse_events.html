@@ -9,41 +9,22 @@
 	  <thead>
 	    <tr>
 	      <th scope="col">Variable</th>
-	      <th class="column_head">Gaborone</th>
-          <th class="column_head">Serowe</th>
-          <th class="column_head">Maun</th>
-          <th class="column_head">Francistown</th>
-          <th class="column_head">S/Phikwe</th>
+	      	{% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
           <th class="column_head">Totals</th>
 	    </tr>
 	  </thead>
 	  <tbody>
 	    <tr>
 	      <td>Adverse Events</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>100</td>
+	      {% for data in heterologous_aes.0 %}  <td>{{ data }}</td>  {% endfor %}
 	    </tr>
 	    <tr>
 	      <td>Serious Adverse Events</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>100</td>
+	      {% for data in heterologous_aes.1 %}  <td>{{ data }}</td>  {% endfor %}
 	    </tr>
 	    <tr>
 	      <td>AE of Special Interest</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>23</td>
-	      <td>100</td>
+	      {% for data in heterologous_aes.2 %}  <td>{{ data }}</td>  {% endfor %}
 	    </tr>
 	  </tbody>
 	</table>
