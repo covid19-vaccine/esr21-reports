@@ -5,25 +5,18 @@
 <div class="panel panel-warning">
   <div class="panel-heading"><h5>Heterologous series</h5></div>
   <div class="panel-body">
-  <table class="table table-hover">
-	  <thead>
-	    <tr>
-	    	<th></th>
-	    	{% for data in heterologous_vaccinations.0.keys  %}  <th>{{ data | title }}</th>  {% endfor %}
-	    </tr>
-	  </thead>
-	  <tbody>
-	    <tr>
-	      <td>Second Dose</td>
-	      {% for data in heterologous_vaccinations.0.values  %}  <td>{{ data }}</td>  {% endfor %}
-	    </tr>
-	    <tr>
-	      <td>Booster Dose</td>
-	      {% for data in heterologous_vaccinations.1.values  %}  <td>{{ data }}</td>  {% endfor %}
-	    </tr>
-	  </tbody>
-	</table>
+  	{% include './heterologous/prev_vaccines_2n_dose_enrollment.html' %}
+  	{% include './heterologous/prev_vaccine_booster_enrollment.html' %}
   </div>
 </div>
 </div>
+
+
 </div>
+
+
+
+
+
+
+
