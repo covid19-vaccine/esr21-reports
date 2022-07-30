@@ -13,12 +13,6 @@ esr21_reports.append_item(
                url_name='esr21_reports:esr21_reports_home_url'))
 
 esr21_reports.append_item(
-    NavbarItem(name='Study Progress Reports',
-               label='Study Progress Reports',
-               fa_icon='fa-chart-pie',
-               url_name='esr21_reports:esr21_study_progress_report_url'))
-
-esr21_reports.append_item(
     NavbarItem(name='Graphs Reports',
                label='Graphs Reports',
                fa_icon='fa-chart-bar',
