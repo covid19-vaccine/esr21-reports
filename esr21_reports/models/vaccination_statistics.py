@@ -38,3 +38,5 @@ class VaccinationStatistics(BaseUuidModel):
         verbose_name='Overall Percentage',
         default=0
     )
+
+    months = models.TextField()

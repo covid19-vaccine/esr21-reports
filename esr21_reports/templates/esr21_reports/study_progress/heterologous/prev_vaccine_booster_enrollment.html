@@ -1,0 +1,78 @@
+<hr><center><h3>First & Second Dose Vaccines If Enrolled at Booster Dose</h3></center><hr>
+  <table class="table table-hover">
+  <thead>
+    <tr>
+    	<th></th>
+    	{% for product in heterologous_vaccinations.0.keys %}
+    		<th {% if product == 'totals' %} colspan="3" {% else %} colspan="2" {% endif %} style="border-bottom: 1px solid;">
+    			{{ product | title }}
+    		</th>
+    	{% endfor %}	    	
+  </thead>
+  <tbody>
+  	<tr>
+  	<td></td>
+  	<td>First Dose</td>
+    <td>Second Dose</td>
+    <td>First Dose</td>
+    <td>Second Dose</td>
+    <td>First Dose</td>
+    <td>Second Dose</td>
+    <td>First Dose</td>
+    <td>Second Dose</td>
+    <td>First Dose</td>
+    <td>Second Dose</td>
+    <td>First Dose</td>
+    <td>Second Dose</td>
+    <td>Overall</td>
+  	</tr>
+    <tr>
+      <td>Gaborone</td>
+      {% for data in heterologous_vaccinations.1.values %}
+      	{% for value in data.0 %}
+      		<td>{{ value }}</td>
+      	{% endfor %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td>Maun</td>
+      {% for data in heterologous_vaccinations.1.values %}
+      	{% for value in data.1 %}
+      		<td>{{ value }}</td>
+      	{% endfor %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td>Serowe</td>
+      {% for data in heterologous_vaccinations.1.values %}
+      	{% for value in data.2 %}
+      		<td>{{ value }}</td>
+      	{% endfor %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td>Francistown</td>
+      {% for data in heterologous_vaccinations.1.values %}
+      	{% for value in data.3 %}
+      		<td>{{ value }}</td>
+      	{% endfor %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td>S/Phikwe</td>
+      {% for data in heterologous_vaccinations.1.values %}
+      	{% for value in data.4 %}
+      		<td>{{ value }}</td>
+      	{% endfor %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td>Totals</td>
+      {% for data in heterologous_vaccinations.1.values %}
+      	{% for value in data.5 %}
+      		<td>{{ value }}</td>
+      	{% endfor %}
+      {% endfor %}
+    </tr>
+  </tbody>
+</table>

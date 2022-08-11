@@ -53,6 +53,7 @@ class VaccinationGraphMixin(EdcBaseViewMixin):
         sites_first_doses = sum(first_dose)
         sites_second_doses = sum(second_dose)
         sites_booster_doses = sum(booster_dose)
+        total_ip_use = sum(overall)
         context.update(
             vac_details_labels=site_names,
             vac_details_first=first_dose,
@@ -61,6 +62,7 @@ class VaccinationGraphMixin(EdcBaseViewMixin):
             all_sites_dose=[sites_first_doses,
                             sites_second_doses,
                             sites_booster_doses],
+            total_ip_use=total_ip_use,
         )
         return context
 

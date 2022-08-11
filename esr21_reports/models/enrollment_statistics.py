@@ -33,3 +33,5 @@ class EnrollmentStatistics(BaseUuidModel):
         verbose_name='Site Total Females',
         default=0
     )
+
+    months = models.TextField()

@@ -49,119 +49,110 @@
 <div class="row">
 	<div class="col-md-6">
 		<figure class="highcharts-figure">
-			<div id="total_enrolled"></div>
+			<div id="primaryandheterologous"></div>
 			<p class="highcharts-description">
-				Bar chart shows a comparison of first dose and second dose for all sites.
+				This chart shows how data labels can be added to the data series. This
+				can increase readability and comprehension for small datasets.
 			</p>
 		</figure>
 		<script>
-			Highcharts.chart('total_enrolled', {
+			Highcharts.chart('primaryandheterologous', {
 				chart: {
-					type: 'column'
+					type: 'line'
 				},
 				title: {
-					text: 'First, second and booster dose enrollments'
+					text: 'Primary and Heterologous series overall'
+				},
+				subtitle: {
+					text: ''
 				},
 				xAxis: {
-					categories: ['First dose', 'Second dose', 'Booster dose'],
-					title: {
-						text: null
-					}
+					categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 				},
 				yAxis: {
-					
 					title: {
-						text: 'First, second and booster dose enrollments',
-						align: 'high'
-					},
-					labels: {
-						overflow: 'justify'
+						text: 'Number of Enrolments'
 					}
 				},
 				plotOptions: {
-					bar: {
-						dataLabels: {
-							enabled: true
-						}
-					}
-				},
-				credits: {
-					enabled: false
+					series: {
+						label: {
+							connectorAllowed: false
+						},
+					},
 				},
 				series: [{
-					name:'dose',
-					data: {{ total_enrolled }}
-				},]
+					name: 'AZD1222',
+					data: [7.0, 6.9, 9.5, 14.5, 18.4, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
+				}, {
+					name: 'Others',
+					data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
+				}]
 			});
 		</script>
 	</div>
 	<div class="col-md-6">
 		<figure class="highcharts-figure1">
 			<div id="container4"></div>
-			<p class="highcharts-description">
-				
-			</p>
+			<p class="highcharts-description"></p>
 		</figure>
 		<script>
 			Highcharts.chart('container4', {
 				chart: {
-					type: 'column'
+				  type: 'area'
+				},
+				accessibility: {
+				  description: 'Primary and Heterologous series overall'
 				},
 				title: {
-					text: 'First, second and booster dose enrollments per site'
+				  text: 'Primary and Heterologous series overall'
 				},
+				
 				xAxis: {
-					categories: ['Gaborone', 'Maun', 'Serowe', 'F/Town', 'Phikwe']
+				  allowDecimals: false,
+				  categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+				  labels: {
+					formatter: function () {
+					  return this.value; // clean, unformatted number for year
+					}
+				  },
+				  accessibility: {
+					rangeDescription: 'Range: Sept 2021 to July 2022.'
+				  }
 				},
 				yAxis: {
-					min: 0,
-					title: {
-						text: 'Total Screening'
-				},
-				stackLabels: {
-					enabled: true,
-					style: {
-						fontWeight: 'bold',
-						color: ( // theme
-							Highcharts.defaultOptions.title.style &&
-							Highcharts.defaultOptions.title.style.color
-						) || 'gray'
-					}
-				}
-				},
-				legend: {
-				  align: 'right',
-				  x: -30,
-				  verticalAlign: 'top',
-				  y: 25,
-				  floating: true,
-				  backgroundColor:
-					Highcharts.defaultOptions.legend.backgroundColor || 'white',
-				  borderColor: '#CCC',
-				  borderWidth: 1,
-				  shadow: false
+				  title: {
+					text: 'Number of enrolments'
+				  },
+				  
 				},
 				tooltip: {
-				  headerFormat: '<b>{point.x}</b><br/>',
-				  pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+				  pointFormat: '{series.name} had stockpiled <b>{point.y:,.0f}</b><br/>warheads in {point.x}'
 				},
 				plotOptions: {
-				  column: {
-					stacking: 'normal',
-					dataLabels: {
-					  enabled: true
+				  area: {
+					marker: {
+					  enabled: false,
+					  symbol: 'circle',
+					  radius: 2,
+					  states: {
+						hover: {
+						  enabled: true
+						}
+					  }
 					}
 				  }
 				},
 				series: [{
-				  name: 'Booster dose',
-				  data: {{ booster_dose_at_enrollment }}
+				  name: 'AZD 1222',
+				  data: [
+					6, 11, 32, 110, 235,
+					369, 640, 1005, 1436, 2063, 3057, 4618,
+				  ]
 				}, {
-				  name: '2nd dose',
-				  data: {{ second_dose_at_enrollment }}
-				}, {
-				  name: '1st dose',
-				  data: {{ first_dose_enrollment }}
+				  name: 'Others',
+				  data: [5, 25, 50, 120, 150, 200, 426, 660, 869, 1060, 1605, 2471
+				  ]
 				}]
 			  });
 		</script>

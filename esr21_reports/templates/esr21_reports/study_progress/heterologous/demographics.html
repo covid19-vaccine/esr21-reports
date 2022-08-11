@@ -1,0 +1,89 @@
+<div class="panel panel-info">
+  <div class="panel-heading"><h5>Gender | HIV Status | Pregnancies | Diabates</h5></div>
+  <div class="panel-body">
+	<div class="table-responsive">
+	
+	    <table class="table table table-striped table-hover table-condensed lightable-paper table_style">
+	        <thead>
+	            <tr>
+	            	<th class="column_head">Variables</th>
+	                {% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
+	                <th class="column_head">Totals</th>
+	            </tr>
+	        </thead>
+	        <tbody>
+	
+	            <!-- Gender -->
+	           <tr grouplength="10">
+	               <td colspan="7" style="border-bottom: 1px solid;">
+	                   <b>Gender</b>
+	               </td>
+	           </tr>
+	           <tr>
+	           <td>Male</td>
+				{% for data in heterologous_demographics.0 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	           <tr>
+	           <td>Female</td>
+				{% for data in heterologous_demographics.1 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	
+	           <tr grouplength="10">
+	               <td colspan="7" style="border-bottom: 1px solid;">
+	                   <b>HIV</b> 
+	               </td>
+	           </tr>
+			   <tr>
+	            <td>Positive</td>
+	            {% for data in heterologous_demographics.2 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	           <tr>
+	            <td>Negative</td>
+	            {% for data in heterologous_demographics.3 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	           <tr>
+	            <td>Indeterminate</td>
+	            {% for data in heterologous_demographics.4 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	
+	           <tr>
+	           
+	           <tr grouplength="10">
+	               <td colspan="7" style="border-bottom: 1px solid;">
+	                   <b>Pregnancies Positives</b> 
+	               </td>
+	           </tr>
+	           <tr>
+	            <td>Positive</td>
+	            {% for data in heterologous_demographics.5 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	           
+	           <tr grouplength="10">
+	               <td colspan="7" style="border-bottom: 1px solid;">
+	                   <b>Covid Positives</b> 
+	               </td>
+	           </tr>
+	           <tr>
+	            <td>Positive</td>
+	            <td>3</td>
+				<td>3</td>
+				<td>3</td>
+				<td>3</td>
+				<td>3</td>
+				<td>10</td>
+	           </tr>
+	           
+	           <tr grouplength="10">
+	               <td colspan="7" style="border-bottom: 1px solid;">
+	                   <b>Diabates</b> 
+	               </td>
+	           </tr>
+	           <tr>
+	            <td>Positive</td>
+	            {% for data in heterologous_demographics.6 %}  <td>{{ data }}</td>  {% endfor %}
+	           </tr>
+	           </tbody>
+	       </table>
+	   </div>
+	</div>
+</div>

@@ -3,11 +3,12 @@ from django.db.models import Q
 from django.views.generic import TemplateView
 from edc_constants.constants import POS, NEG, YES, IND
 from edc_navbar import NavbarViewMixin
-from .study_progres import HomologousSeries, HeterologousSeries
-from .site_helper_mixin import SiteHelperMixin
+from .homologous_series import HomologousSeries
+from .heterologous_series import HeterologousSeries
+from ..site_helper_mixin import SiteHelperMixin
 
 
-class HomeView(NavbarViewMixin, TemplateView,
+class StudyProgressView(NavbarViewMixin, TemplateView,
                         HomologousSeries, HeterologousSeries,
                         SiteHelperMixin):
     template_name = 'esr21_reports/study_progress_report.html'

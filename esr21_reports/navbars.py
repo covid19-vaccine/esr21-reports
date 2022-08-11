@@ -15,7 +15,7 @@ esr21_reports.append_item(
 esr21_reports.append_item(
     NavbarItem(name='Graphs Reports',
                label='Graphs Reports',
-               fa_icon='fa-graph',
+               fa_icon='fa-chart-bar',
                url_name='esr21_reports:esr21_graphs_report_url'))
 
 esr21_reports.append_item(

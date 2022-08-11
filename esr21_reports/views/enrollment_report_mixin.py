@@ -154,13 +154,13 @@ class EnrollmentReportMixin(EdcBaseViewMixin):
 
     @property
     def enrolled_participants(self):
-        overall = self.vaccination_model_cls.objects.filter(
-            Q(received_dose_before='first_dose')).count()
+        overall = self.vaccination_model_cls.objects.filter(received_dose_before='first_dose').count()
         gaborone = self.get_enrolled_by_site('Gaborone').count()
         maun = self.get_enrolled_by_site('Maun').count()
         serowe = self.get_enrolled_by_site('Serowe').count()
         f_town = self.get_enrolled_by_site('Francistown').count()
         phikwe = self.get_enrolled_by_site('Phikwe').count()
+        overall = overall+self.second_dose_at_enrollment[1]+self.booster_dose_at_enrollment[1]
 
         return [
             ['Enrolled', overall, gaborone, maun, serowe, f_town, phikwe],
