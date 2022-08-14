@@ -48,13 +48,23 @@
 		    </div>
 		    
 		    <hr>
+			<div class="panel panel-info">
+				<div class="panel-heading">Vaccination Retention Rate</div>
+				<div class="panel-body">
+					<section id="retention_rate_graphs">
+					  {% include './graphs/retention_rate.html' %}
+				  </section>
+				</div>
+			  </div>
+			<hr>
 		    
 		    <div class="panel panel-success">
 		      <div class="panel-heading">Enrollment</div>
 		      <div class="panel-body">
 		      	
 		      	<section id="enrollments_graphs">
-		            {% include './graphs/enrollments_graphs.html' %}
+					{% include './graphs/homologous_series_overtime.html' %}
+					{% include './graphs/heterologous_series_overtime.html' %}
 		        </section>
 		        <hr>
 		        <section id="vac_administered">

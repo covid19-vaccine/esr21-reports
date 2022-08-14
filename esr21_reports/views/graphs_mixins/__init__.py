@@ -3,3 +3,4 @@ from .enrollement_graph_mixin import EnrollmentGraphMixin
 from .screening_graph_mixin import ScreeningGraphMixin
 from .vaccination_graph_mixin import VaccinationGraphMixin
 from .missed_2nd_dose_graph_mixin import Missed2ndDoseGraphMixin
+from .enrollments_overtime_mixin import EnrollmentOvertimeMixin
