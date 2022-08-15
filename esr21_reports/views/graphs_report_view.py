@@ -2,8 +2,10 @@ from django.views.generic import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
 
-from .graphs_mixins import ScreeningGraphMixin, AgeDistributionGraphMixin, \
-    EnrollmentGraphMixin, VaccinationGraphMixin
+from .graphs_mixins import (
+    AgeDistributionGraphMixin, HomeEnrollmentOvertimeMixin,
+    HeteroEnrollmentOvertimeMixin, EnrollmentGraphMixin, ScreeningGraphMixin,
+    VaccinationGraphMixin)
 
 from .site_helper_mixin import SiteHelperMixin
 
@@ -13,6 +15,7 @@ class GraphsView(
     ScreeningGraphMixin,
     AgeDistributionGraphMixin,
     EnrollmentGraphMixin,
+    HomeEnrollmentOvertimeMixin,
     VaccinationGraphMixin,
     NavbarViewMixin,
     EdcBaseViewMixin,
