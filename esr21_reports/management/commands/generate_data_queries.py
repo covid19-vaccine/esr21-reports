@@ -15,7 +15,7 @@ class Command(BaseCommand):
         general_queries.first_dose_second_dose_missing
         print("Generating queries for vaccinated but not eligible participants")
         general_queries.ineligible_vaccinated_participant
-        print("Generating quesries for male with child bearing potential")
+        print("Generating queries for male with child bearing potential")
         general_queries.male_child_bearing_potential
         print("Generating queries with ae date before vaccination")
         general_queries.ae_data_issues
@@ -25,7 +25,7 @@ class Command(BaseCommand):
         general_queries.duplicate_subject_doses
         print("Generating queries for female missing pregnancy status")
         general_queries.female_missing_preg
-        print('Generating covid related queries')
+        print('Generating COVID related queries')
         covid_queries.symptomaticinfections_missing()
         covid_queries.pcr_results_missing()
         covid_queries.no_infections_symptoms_specified()

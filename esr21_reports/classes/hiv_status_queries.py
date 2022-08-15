@@ -54,7 +54,8 @@ class HIVStatusQueries(QueryGeneration):
             query_name='Participant\'s HIV test result is missing.')
 
         hiv_neg = self.rapid_hiv_status_cls.objects.filter(
-            Q(hiv_result=NEG) | Q(rapid_test_result=NEG))
+            Q(hiv_result=NEG) | Q(rapid_test_result=NEG),
+            site_id=self.site_id)
 
         neg_art = {}
 
