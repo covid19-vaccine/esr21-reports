@@ -8,7 +8,7 @@ from django.contrib.sites.models import Site
 from edc_base.view_mixins import EdcBaseViewMixin
 
 
-class HomeEnrollmentOvertimeMixin(EdcBaseViewMixin):
+class HeteroEnrollmentOvertimeMixin(EdcBaseViewMixin):
 
     vaccine_model = 'esr21_subject.vaccinationdetails'
 
@@ -31,7 +31,7 @@ class HomeEnrollmentOvertimeMixin(EdcBaseViewMixin):
         return self.months
 
     @property
-    def homologous_first_dose_idnt(self):
+    def heterologous_enrollment_ident(self):
         vaccinations_details = self.vaccine_model_cls.objects.filter(
             received_dose_before='first_dose'
         ).values_list('subject_visit__subject_identifier', flat=True)
