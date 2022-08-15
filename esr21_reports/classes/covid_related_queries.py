@@ -33,7 +33,7 @@ class COVIDRelatedQueries(QueryGeneration):
                    ' on the system.')
         query = self.create_query_name(
             query_name='Missing symptomatic infections data, but has PCR results.')
-        pcr_results = self.covid19_results_cls.objects.all()
+        pcr_results = self.covid19_results_cls.objects.filter(site_id=self.site_id)
 
         enrol_visits = [enrol.subject_visit.id for enrol in self.overall_enrols]
 
@@ -99,7 +99,8 @@ class COVIDRelatedQueries(QueryGeneration):
                    'needs to be corrected/recaptured on the system')
         query = self.create_query_name(
             query_name='Missing PCR result data, but has symptomatic infections.')
-        infections = self.covid19infections_cls.objects.filter(symptomatic_experiences=YES)
+        infections = self.covid19infections_cls.objects.filter(
+            symptomatic_experiences=YES, site_id=self.site_id)
         missing_pcr = {}
 
         for infection in infections:
@@ -140,7 +141,8 @@ class COVIDRelatedQueries(QueryGeneration):
         query = self.create_query_name(
             query_name='Participant did not experience COVID symptoms, but symptoms keyed.')
         infections = self.covid19infections_cls.objects.filter(
-            symptomatic_experiences=NO, symptomatic_infections__isnull=False)
+            symptomatic_experiences=NO, symptomatic_infections__isnull=False,
+            site_id=self.site_id)
         no_infections = {}
 
         for infection in infections:
@@ -211,6 +213,6 @@ class COVIDRelatedQueries(QueryGeneration):
     @property
     def vaccinations(self):
         vaccinations = self.vaccination_details_cls.objects.filter(
-            received_dose=YES).values_list(
+            received_dose=YES, site=self.site_id).values_list(
                 'subject_visit__subject_identifier', flat=True).distinct()
         return [vacc for vacc in vaccinations]
