@@ -19,24 +19,27 @@ class VaccinationStatistics(BaseUuidModel):
         unique=True
     )
 
-    dose_1_percent = models.FloatField(
-        verbose_name='First Dose Percentage',
+    dose_1 = models.PositiveIntegerField(
+        verbose_name='First dose total',
         default=0
     )
 
-    dose_2_percent = models.FloatField(
-        verbose_name='Second Dose Percentage',
+    dose_2 = models.PositiveIntegerField(
+        verbose_name='Second dose total',
         default=0
     )
 
-    dose_3_percent = models.FloatField(
-        verbose_name='Booster Dose Percentage',
+    dose_3 = models.PositiveIntegerField(
+        verbose_name='Booster dose total',
         default=0
     )
 
-    overall_percent = models.FloatField(
-        verbose_name='Overall Percentage',
+    overall = models.PositiveIntegerField(
+        verbose_name='Overall',
         default=0
     )
 
-    months = models.TextField()
+    series = models.CharField(
+        verbose_name='Series',
+        max_length=150,
+    )

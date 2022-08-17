@@ -16,15 +16,15 @@
 		  <tbody>
 		    <tr>
 		      <td>Main Cohort</td>
-		      {% for data in heterologous_enrollments.0 %}  <td>{{ data }}</td>  {% endfor %}
+		      {% for data in heterologous_enrollments %}  <td>{{ data }}</td>  {% endfor %}
 		    </tr>
 		    <tr>
 		      <td>Sub Cohort</td>
-		      {% for data in heterologous_enrollments.1 %}  <td>{{ data }}</td>  {% endfor %}
+		      {% for data in heterologous_enrollments %}  <td>{{ data }}</td>  {% endfor %}
 		    </tr>
 		    <tr>
 		      <td>Total Enrolments</td>
-		      {% for data in heterologous_enrollments.2 %}  <td>{{ data }}</td>  {% endfor %}
+		      {% for data in heterologous_enrollments %}  <td>{{ data }}</td>  {% endfor %}
 		    </tr>
 		  </tbody>
 		</table>

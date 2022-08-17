@@ -34,4 +34,19 @@ class EnrollmentStatistics(BaseUuidModel):
         default=0
     )
 
+    main_cohort = models.CharField(
+        verbose_name='Cohort',
+        max_length=150,
+    )
+
+    sub_cohort = models.CharField(
+        verbose_name='Cohort',
+        max_length=150,
+    )
+
+    series = models.CharField(
+        verbose_name='Series',
+        max_length=150,
+    )
+
     months = models.TextField()

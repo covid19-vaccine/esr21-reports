@@ -45,3 +45,11 @@ class VaccinationEnrollments(BaseUuidModel):
     )
 
     months = models.TextField()
+
+    totals = models.PositiveIntegerField(
+        verbose_name='Total dose screening',)
+
+    series = models.CharField(
+        verbose_name='Series',
+        max_length=150,
+    )

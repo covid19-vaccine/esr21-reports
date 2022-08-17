@@ -8,29 +8,23 @@
 	  <table class="table table-hover">
 		  <thead>
 		    <tr>
-		      <th scope="col">Vaccine</th>
-			  {% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
+		      <th scope="col">Site</th>
+			  <th scope="col">First dose</th>
+			  <th scope="col">Second dose</th>
+			  <th scope="col">Booster dose</th>
 		      <th scope="col">Totals</th>
 		    </tr>
 		  </thead>
 		  <tbody>
-		    <tr>
-		      <td>{{ site_screening.0.0 }}</td>
-			  {% for data in site_screening.0.1 %}  <td>{{ data }}</td>  {% endfor %}
-		    </tr>
-			<tr>
-				<td>{{ site_screening.1.0 }}</td>
-				{% for data in site_screening.1.1 %}  <td>{{ data }}</td>  {% endfor %}
-			</tr>
-			<tr>
-				<td>{{ site_screening.2.0 }}</td>
-				{% for data in site_screening.2.1 %}  <td>{{ data }}</td>  {% endfor %}
-			</tr>
-			<tr>
-				<td>{{ site_screening.3.0 }}</td>
-				{% for data in site_screening.3.1 %}  <td>{{ data }}</td>  {% endfor %}
-			</tr>
-		   
+			{% for data in site_screening %} 
+				<tr>
+					<td>{{ data.site }}</td>
+					<td>{{ data.dose1 }}</td>  
+					<td>{{ data.dose2 }}</td>  
+					<td>{{ data.dose3 }}</td>  
+					<td>{{ data.totals }}</td>  
+				</tr>
+			{% endfor %}
 		  </tbody>
 		</table>
 	  </div>

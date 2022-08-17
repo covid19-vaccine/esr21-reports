@@ -21,11 +21,11 @@
 	           </tr>
 	           <tr>
 	           <td>Male</td>
-				{% for data in heterologous_demographics.0 %}  <td>{{ data }}</td>  {% endfor %}
+				{% for data in heterologous_demographics %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           <tr>
 	           <td>Female</td>
-				{% for data in heterologous_demographics.1 %}  <td>{{ data }}</td>  {% endfor %}
+				{% for data in heterologous_demographics %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	
 	           <tr grouplength="10">
@@ -35,15 +35,15 @@
 	           </tr>
 			   <tr>
 	            <td>Positive</td>
-	            {% for data in heterologous_demographics.2 %}  <td>{{ data }}</td>  {% endfor %}
+	            {% for data in heterologous_demographics %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           <tr>
 	            <td>Negative</td>
-	            {% for data in heterologous_demographics.3 %}  <td>{{ data }}</td>  {% endfor %}
+	            {% for data in heterologous_demographics %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           <tr>
 	            <td>Indeterminate</td>
-	            {% for data in heterologous_demographics.4 %}  <td>{{ data }}</td>  {% endfor %}
+	            {% for data in heterologous_demographics %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	
 	           <tr>
@@ -55,7 +55,7 @@
 	           </tr>
 	           <tr>
 	            <td>Positive</td>
-	            {% for data in heterologous_demographics.5 %}  <td>{{ data }}</td>  {% endfor %}
+	            {% for data in heterologous_demographics %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           
 	           <tr grouplength="10">
@@ -80,7 +80,7 @@
 	           </tr>
 	           <tr>
 	            <td>Positive</td>
-	            {% for data in heterologous_demographics.6 %}  <td>{{ data }}</td>  {% endfor %}
+	            {% for data in heterologous_demographics %}  <td>{{ data }}</td>  {% endfor %}
 	           </tr>
 	           </tbody>
 	       </table>

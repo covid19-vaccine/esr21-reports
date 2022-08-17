@@ -19,9 +19,9 @@ class HeterologousSeries(EdcBaseViewMixin):
     def enrollments(self):
         enrolled, main_cohort, sub_cohort = self.cohort
         return [
-            main_cohort,
-            sub_cohort,
-            enrolled
+            ['Main Cohort', main_cohort],
+            ['Sub Cohort', sub_cohort],
+            ['Totals', enrolled]
         ]
 
     @property
@@ -127,4 +127,3 @@ class HeterologousSeries(EdcBaseViewMixin):
             received_dose=YES,
             subject_visit__subject_identifier__in=screenings).values_list(
                 'subject_visit__subject_identifier', flat=True).distinct()
-
