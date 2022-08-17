@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.db.models import Q
+from django.conf import settings
 
 from edc_appointment.constants import NEW_APPT
 from edc_constants.constants import OPEN, YES
@@ -16,6 +17,7 @@ class QueryGeneration:
     informed_consent_model = 'esr21_subject.informedconsent'
     medical_history_model = 'esr21_subject.medicalhistory'
     pregnancy_model = 'esr21_subject.pregnancystatus'
+    subject_visit_model = 'esr21_subject.subjectvisit'
 
     @property
     def consent_model_cls(self):
@@ -54,6 +56,10 @@ class QueryGeneration:
         return django_apps.get_model(self.pregnancy_model)
 
     @property
+    def subject_visit_cls(self):
+        return django_apps.get_model(self.subject_visit_model)
+
+    @property
     def query_name_cls(self):
         return django_apps.get_model('edc_data_manager.queryname')
 
@@ -68,13 +74,13 @@ class QueryGeneration:
     @property
     def homologous_enrols(self):
         enrols = self.vaccination_details_cls.objects.filter(
-            received_dose_before='first_dose')
+            received_dose_before='first_dose', site_id=self.site_id)
         return [enrol for enrol in enrols]
 
     @property
     def heterologous_first_enrols(self):
         hist = self.vaccination_history_cls.objects.filter(
-            dose_quantity='1').exclude(dose1_product_name='azd_1222').values_list(
+            dose_quantity='1', site_id=self.site_id).exclude(dose1_product_name='azd_1222').values_list(
                 'subject_identifier', flat=True)
 
         enrols = self.vaccination_details_cls.objects.filter(
@@ -84,13 +90,17 @@ class QueryGeneration:
     @property
     def heterologous_second_enrols(self):
         hist = self.vaccination_history_cls.objects.filter(
-            dose_quantity='2').exclude(Q(dose1_product_name='azd_1222') |
-                                       Q(dose2_product_name='azd_1222')).values_list(
-                                           'subject_identifier', flat=True)
+            dose_quantity='2', site_id=self.site_id).exclude(
+                Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
+                    'subject_identifier', flat=True)
 
         enrols = self.vaccination_details_cls.objects.filter(
             received_dose_before='booster_dose', subject_visit__subject_identifier__in=hist)
         return [enrol for enrol in enrols]
+
+    @property
+    def site_id(self):
+        return settings.SITE_ID
 
     def create_query_name(self, query_name=None):
         obj, created = self.query_name_cls.objects.get_or_create(query_name=query_name)
@@ -149,8 +159,8 @@ class QueryGeneration:
         query = self.create_query_name(
             query_name='Missing First Dose Data')
         hist = self.vaccination_history_cls.objects.filter(
-            dose_quantity='1').exclude(dose1_product_name='azd_1222').values_list(
-                'subject_identifier', flat=True)
+            dose_quantity='1', site_id=self.site_id).exclude(
+                dose1_product_name='azd_1222').values_list('subject_identifier', flat=True)
 
         hetero_enrols = self.vaccination_details_cls.objects.filter(
             received_dose_before='second_dose',
@@ -158,7 +168,7 @@ class QueryGeneration:
                 'subject_visit__subject_identifier', flat=True)
 
         second_doses = self.vaccination_details_cls.objects.filter(
-            received_dose_before='second_dose').exclude(
+            received_dose_before='second_dose', site_id=self.site_id).exclude(
                 subject_visit__subject_identifier__in=hetero_enrols)
 
         for dose in second_doses:
@@ -185,7 +195,7 @@ class QueryGeneration:
         subject = "The adverse even start date is before the first dose."
         comment = "The participant adverse even start date is before" \
                   " the participant was vaccinated at visit(s) %(visits)s"
-        aes = self.ae_model_cls.objects.all()
+        aes = self.ae_model_cls.objects.filter(site_id=self.site_id)
         erroneous_aes = {}
 
         for aer in aes:
@@ -225,11 +235,16 @@ class QueryGeneration:
         crfmetadata = django_apps.get_model('edc_metadata.crfmetadata')
         query = self.create_query_name(
             query_name='Missing Visit Forms data')
-        enrolments = self.overall_enrols
-        for enrolment in enrolments:
+        vax = self.vaccination_details_cls.objects.filter(
+            received_dose='Yes', site_id=self.site_id).values_list(
+                'subject_visit__subject_identifier', flat=True).distinct()
+
+        visits = self.subject_visit_cls.objects.filter(
+            subject_identifier__in=vax, reason='scheduled')
+        for visit in visits:
             required_crfs = crfmetadata.objects.filter(
-                subject_identifier=enrolment.subject_visit.subject_identifier,
-                visit_code=enrolment.subject_visit.visit_code,
+                subject_identifier=visit.subject_identifier,
+                visit_code=visit.visit_code,
                 entry_status='REQUIRED')
 
             for missing_crf in required_crfs:
@@ -238,7 +253,7 @@ class QueryGeneration:
                 model = model.split('.')[1]
                 visit_code = missing_crf.visit_code
                 subject = f'Participant is missing {model} data for visit {visit_code}.'
-                comment = f'{subject}. Please complete the missing data for the form'
+                comment = f'{subject} Please complete the missing data for the form'
                 self.create_action_item(
                     site=missing_crf.site,
                     subject_identifier=missing_crf.subject_identifier,
@@ -257,7 +272,7 @@ class QueryGeneration:
         subject = 'Male participant with child bearing potential.'
         comment = f'{subject}. Please correct an update the screening accordingly'
         male_consents = self.consent_model_cls.objects.filter(
-            gender='M').values_list('subject_identifier', flat=True)
+            gender='M', site_id=self.site_id).values_list('subject_identifier', flat=True)
         screening_eligibility = self.screening_eligibility_cls.objects.filter(
             subject_identifier__in=male_consents,
             childbearing_potential='Yes')
@@ -283,7 +298,7 @@ class QueryGeneration:
         comment = f'{subject}. Please re-evaluate the screening criteria'
 
         subject_identifiers = self.screening_eligibility_cls.objects.filter(
-            is_eligible=False).values_list('subject_identifier', flat=True)
+            is_eligible=False, site_id=self.site_id).values_list('subject_identifier', flat=True)
         participant_list = self.vaccination_details_cls.objects.filter(
             subject_visit__subject_identifier__in=subject_identifiers,
             received_dose=YES)
@@ -300,8 +315,8 @@ class QueryGeneration:
 
     @property
     def duplicate_subject_doses(self):
-        enrolled_identifiers = self.vaccination_details_cls.objects.all().values_list(
-            'subject_visit__subject_identifier', flat=True)
+        enrolled_identifiers = self.vaccination_details_cls.objects.filter(
+            site_id=self.site_id).values_list('subject_visit__subject_identifier', flat=True)
         enrolled_identifiers = list(set(enrolled_identifiers))
         doses = ['first_dose', 'second_dose', 'booster_dose']
         query = self.create_query_name(
@@ -328,7 +343,7 @@ class QueryGeneration:
     @property
     def female_missing_preg(self):
         female_consents = self.consent_model_cls.objects.filter(
-            gender='F').values_list('subject_identifier', flat=True)
+            gender='F', site_id=self.site_id).values_list('subject_identifier', flat=True)
         enrolled = self.vaccination_details_cls.objects.filter(
             subject_visit__subject_identifier__in=female_consents,
             received_dose=YES)
