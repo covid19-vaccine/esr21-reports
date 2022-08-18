@@ -13,10 +13,15 @@ class VaccinationStatistics(BaseUuidModel):
 
     objects = VaccinationStatisticsManager()
 
+    site_series = models.CharField(
+        verbose_name='Site Series',
+        max_length=150,
+        unique=True
+    )
+
     site = models.CharField(
         verbose_name='Site',
         max_length=150,
-        unique=True
     )
 
     dose_1 = models.PositiveIntegerField(

@@ -13,10 +13,15 @@ class EnrollmentStatistics(BaseUuidModel):
 
     objects = EnrollmentStatisticsManager()
 
+    site_series = models.CharField(
+        verbose_name='Site Series',
+        max_length=150,
+        unique=True
+    )
+
     site = models.CharField(
         verbose_name='Site',
         max_length=150,
-        unique=True
     )
 
     total = models.PositiveIntegerField(

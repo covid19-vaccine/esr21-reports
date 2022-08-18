@@ -1,16 +1,16 @@
 from edc_base.view_mixins import EdcBaseViewMixin
 from esr21_reports.models import adverse_events
+from ...models import ScreeningStatistics
 
 
 class HomologousSeries(EdcBaseViewMixin):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            homologous_enrollments=self.enrollments,
-            homologous_vaccinations=self.vaccination,
-            # demographics_data=self.site_demographics(subject_identifiers=self.homologous_list),
-            adverse_events=self.adverse_events,
+            homologous_enrollments=self.enrollments.filter(series='homologous'),
+            homologous_vaccinations=self.vaccination.filter(series='homologous'),
+            demographics_data=self.demographics.filter(series='homologous'),
+            adverse_events=self.adverse_events.filter(series='homologous'),
         )
         return context
 

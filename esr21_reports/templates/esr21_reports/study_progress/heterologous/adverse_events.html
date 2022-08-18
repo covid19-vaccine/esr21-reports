@@ -16,15 +16,15 @@
 	  <tbody>
 	    <tr>
 	      <td>Adverse Events</td>
-	      {% for data in heterologous_aes %}  <td>{{ data }}</td>  {% endfor %}
+	      {% for data in heterologous_aes %}  <td>{{ data.ae }}</td>  {% endfor %}
 	    </tr>
 	    <tr>
 	      <td>Serious Adverse Events</td>
-	      {% for data in heterologous_aes %}  <td>{{ data }}</td>  {% endfor %}
+	      {% for data in heterologous_aes %}  <td>{{ data.serious_ae }}</td>  {% endfor %}
 	    </tr>
 	    <tr>
 	      <td>AE of Special Interest</td>
-	      {% for data in heterologous_aes %}  <td>{{ data }}</td>  {% endfor %}
+	      {% for data in heterologous_aes %}  <td>{{ data.special_ae }}</td>  {% endfor %}
 	    </tr>
 	  </tbody>
 	</table>
