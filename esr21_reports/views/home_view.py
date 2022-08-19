@@ -29,6 +29,7 @@ class HomeView(NavbarViewMixin, TemplateView,
     sae_record_model = 'esr21_subject.seriousadverseeventrecord'
     aei_record_model = 'esr21_subject.specialinterestadverseeventrecord'
     screening_eligibility_model = 'esr21_subject.screeningeligibility'
+    covid19_model = 'esr21_subject.covid19results'
 
     screening = ScreeningStatistics.objects.all()
 
@@ -83,6 +84,10 @@ class HomeView(NavbarViewMixin, TemplateView,
     @property
     def screening_eligibility_cls(self):
         return django_apps.get_model(self.screening_eligibility_model)
+
+    @property
+    def covid19_model_cls(self):
+        return django_apps.get_model(self.covid19_model)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
