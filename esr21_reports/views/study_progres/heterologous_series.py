@@ -24,14 +24,10 @@ class HeterologousSeries(EdcBaseViewMixin):
         ]
 
     def cohort(self, site_id=None):
-        screenings = self.vaccination_history_cls.objects.filter(
-            site_id=site_id).exclude(Q(dose1_product_name='azd_1222') | Q(
-                dose2_product_name='azd_1222')).values_list(
-                    'subject_identifier', flat=True).distinct()
 
         esr21_sub_enrols = self.vaccination_model_cls.objects.filter(
             received_dose=YES,
-            subject_visit__subject_identifier__in=screenings,
+            subject_visit__subject_identifier__in=self.heterologous_enrols,
             subject_visit__schedule_name__startswith='esr21_sub',
             ).values_list('subject_visit__subject_identifier').distinct().count()
 
@@ -39,11 +35,11 @@ class HeterologousSeries(EdcBaseViewMixin):
             Q(subject_visit__schedule_name__startswith='esr21_enrol') | Q(
                 subject_visit__schedule_name__startswith='esr21_fu') | Q(
                     subject_visit__schedule_name__startswith='esr21_boost'),
-            subject_visit__subject_identifier__in=screenings
+            subject_visit__subject_identifier__in=self.heterologous_enrols
             ).values_list('subject_visit__subject_identifier').distinct().count()
 
         enrolled = self.vaccination_model_cls.objects.filter(
-            subject_visit__subject_identifier__in=screenings
+            subject_visit__subject_identifier__in=self.heterologous_enrols
             ).values_list('subject_visit__subject_identifier').distinct().count()
 
         return esr21_main_enrols, esr21_sub_enrols, enrolled
@@ -103,9 +99,10 @@ class HeterologousSeries(EdcBaseViewMixin):
     @property
     def heterologous_enrols(self):
         screenings = self.vaccination_history_cls.objects.exclude(
-            Q(dose1_product_name='azd_1222') | Q(
-                dose2_product_name='azd_1222')).values_list(
-                    'subject_identifier', flat=True).distinct()
+            (Q(dose1_product_name='azd_1222') & Q(dose_quantity=1)) |
+            (Q(dose1_product_name='azd_1222') & Q(dose2_product_name='azd_1222') & Q(dose_quantity=2)) |
+            (Q(dose1_product_name='azd_1222') & Q(dose2_product_name='azd_1222') & Q(dose3_product_name='azd_1222') & Q(dose_quantity=3))
+            ).values_list('subject_identifier').distinct()
 
         return self.vaccination_model_cls.objects.filter(
             received_dose=YES,

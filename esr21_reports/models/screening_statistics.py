@@ -12,7 +12,7 @@ class ScreeningStatisticsManager(SearchSlugManager, models.Manager):
 class ScreeningStatistics(BaseUuidModel):
 
     objects = ScreeningStatisticsManager()
-
+    
     site = models.CharField(
         verbose_name='Site',
         max_length=150,
