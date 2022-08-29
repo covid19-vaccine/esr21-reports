@@ -120,14 +120,18 @@ class QueryGeneration:
     def create_action_item(
             self, site=None, subject_identifier=None, query_name=None,
             assign=None, status=OPEN, subject=None, comment=None):
+        defaults = {
+            'assigned': assign,
+            'status': status,
+            'subject': subject,
+            'comment': comment,
+            'site': site
+            }
         obj, created = self.action_item_cls.objects.update_or_create(
             subject_identifier=subject_identifier,
             query_name=query_name,
-            defaults={'assigned': assign,
-                      'status': status,
-                      'subject': subject,
-                      'comment': comment,
-                      'site': site})
+            defaults=defaults
+            )
         return obj
 
     def check_appt_status(self, required_crf=None):

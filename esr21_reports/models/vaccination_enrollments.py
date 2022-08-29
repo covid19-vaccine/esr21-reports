@@ -13,10 +13,15 @@ class VaccinationEnrollments(BaseUuidModel):
 
     objects = VaccinationEnrollmentsManager()
 
+    site_series = models.CharField(
+        verbose_name='Site Series',
+        max_length=150,
+        unique=True
+    )
+
     variable = models.CharField(
         verbose_name='Variable',
         max_length=150,
-        unique=True
     )
 
     janssen = models.PositiveIntegerField(
@@ -45,3 +50,11 @@ class VaccinationEnrollments(BaseUuidModel):
     )
 
     months = models.TextField()
+
+    totals = models.PositiveIntegerField(
+        verbose_name='Total dose screening',)
+
+    series = models.CharField(
+        verbose_name='Series',
+        max_length=150,
+    )

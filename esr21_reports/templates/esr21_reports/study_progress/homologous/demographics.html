@@ -8,81 +8,74 @@
 	            <tr>
 	            	<th class="column_head">Variables</th>
 					{% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
-	                <th class="column_head">Totals</th>
 	            </tr>
 	        </thead>
 	        <tbody>
-	
-	            <!-- Gender -->
-	           <tr grouplength="10">
-	               <td colspan="7" style="border-bottom: 1px solid;">
-	                   <b>Gender</b>
-	               </td>
-	           </tr>
-	           <tr>
-	           <td>Male</td>
-			   {% for data in demographics_data.0 %}  <td>{{ data }}</td>  {% endfor %}
-	           </tr>
-	           <tr>
-	           <td>Female</td>
-			   {% for data in demographics_data.1 %}  <td>{{ data }}</td>  {% endfor %}
-	           </tr>
-	
-	           <tr grouplength="10">
-	               <td colspan="7" style="border-bottom: 1px solid;">
-	                   <b>HIV</b> 
-	               </td>
-	           </tr>
-			   <tr>
-	            <td>Positive</td>
-				{% for data in demographics_data.2 %}  <td>{{ data }}</td>  {% endfor %}
-	           </tr>
-	           <tr>
-	            <td>Negative</td>
-	            {% for data in demographics_data.3 %}  <td>{{ data }}</td>  {% endfor %}
-	           </tr>
-	           <tr>
-	            <td>Indeterminate</td>
-				{% for data in demographics_data.4 %}  <td>{{ data }}</td>  {% endfor %}
-	           </tr>
-	
-	           <tr>
-	           
-	           <tr grouplength="10">
-	               <td colspan="7" style="border-bottom: 1px solid;">
-	                   <b>Pregnancies</b> 
-	               </td>
-	           </tr>
-	           <tr>
-	            <td>Positive</td>
-				{% for data in demographics_data.5 %}  <td>{{ data }}</td>  {% endfor %}
-	           </tr>
-	           
-	           <tr grouplength="10">
-	               <td colspan="7" style="border-bottom: 1px solid;">
-	                   <b>Covid Positives</b> 
-	               </td>
-	           </tr>
-	           <tr>
-	            <td>Positive</td>
-	            <td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>3</td>
-				<td>10</td>
-	           </tr>
-	           
-	           <tr grouplength="10">
-	               <td colspan="7" style="border-bottom: 1px solid;">
-	                   <b>Diabates</b> 
-	               </td>
-	           </tr>
-	           <tr>
-	            <td>Positive</td>
-				{% for data in demographics_data.6 %}  <td>{{ data }}</td>  {% endfor %}
-	           </tr>
-	           </tbody>
+					  <!-- Gender -->
+					  <tr grouplength="10">
+						<td colspan="7" style="border-bottom: 1px solid;">
+							<b>Gender</b>
+						</td>
+					</tr>
+					<tr>
+					<td>Male</td>
+					{% for data in demographics_data %} <td>{{ data.male }}</td> {% endfor %}
+					</tr>
+					<tr>
+					<td>Female</td>
+					{% for data in demographics_data %}  <td>{{ data.female }}</td> {% endfor %}
+					</tr>
+		 
+					<tr grouplength="10">
+						<td colspan="7" style="border-bottom: 1px solid;">
+							<b>HIV</b> 
+						</td>
+					</tr>
+					<tr>
+					 <td>Positive</td>
+					 {% for data in demographics_data %}  <td>{{ data.hiv_pos }}</td> {% endfor %}
+					</tr>
+					<tr>
+					 <td>Negative</td>
+					 {% for data in demographics_data %}   <td>{{ data.hiv_neg }}</td> {% endfor %}
+					</tr>
+					<tr>
+					 <td>Indeterminate</td>
+					 {% for data in demographics_data %}   <td>{{ data.hiv_ind }}</td> {% endfor %}
+					</tr>
+		 
+					<tr>
+					
+					<tr grouplength="10">
+						<td colspan="7" style="border-bottom: 1px solid;">
+							<b>Pregnancies</b> 
+						</td>
+					</tr>
+					<tr>
+					 <td>Positive</td>
+					 {% for data in demographics_data %}  <td>{{ data.pos_preg }}</td> {% endfor %}
+					</tr>
+					
+					<tr grouplength="10">
+						<td colspan="7" style="border-bottom: 1px solid;">
+							<b>Covid Positives</b> 
+						</td>
+					</tr>
+					<tr>
+					 <td>Positive</td>
+					 {% for data in demographics_data %}  <td>{{ data.pos_covid }}</td> {% endfor %}
+					</tr>
+					
+					<tr grouplength="10">
+						<td colspan="7" style="border-bottom: 1px solid;">
+							<b>Diabates</b> 
+						</td>
+					</tr>
+					<tr>
+					 <td>Positive</td>
+					 {% for data in demographics_data %}  <td>{{ data.pos_preg }}</td> {% endfor %}
+					</tr>
+	        </tbody>
 	       </table>
 	   </div>
 	</div>

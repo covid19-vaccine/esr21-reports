@@ -3,15 +3,15 @@ from edc_search.model_mixins import SearchSlugManager
 from edc_base.model_mixins import BaseUuidModel
 
 
-class VaccinationStatisticsManager(SearchSlugManager, models.Manager):
+class AdverseEventsManager(SearchSlugManager, models.Manager):
 
     def get_by_natural_key(self, subject_identifier):
         return self.get(subject_identifier=subject_identifier)
 
 
-class VaccinationStatistics(BaseUuidModel):
+class AdverseEvents(BaseUuidModel):
 
-    objects = VaccinationStatisticsManager()
+    objects = AdverseEventsManager()
 
     site_series = models.CharField(
         verbose_name='Site Series',
@@ -24,23 +24,23 @@ class VaccinationStatistics(BaseUuidModel):
         max_length=150,
     )
 
-    dose_1 = models.PositiveIntegerField(
-        verbose_name='First dose total',
+    ae = models.PositiveIntegerField(
+        verbose_name='Adverse Event',
         default=0
     )
 
-    dose_2 = models.PositiveIntegerField(
-        verbose_name='Second dose total',
+    serious_ae = models.PositiveIntegerField(
+        verbose_name='Serious Adverse Event',
         default=0
     )
 
-    dose_3 = models.PositiveIntegerField(
-        verbose_name='Booster dose total',
+    special_ae = models.PositiveIntegerField(
+        verbose_name='Special Interest Adverse Event',
         default=0
     )
 
-    overall = models.PositiveIntegerField(
-        verbose_name='Overall',
+    total = models.PositiveIntegerField(
+        verbose_name='Total Adverse Events',
         default=0
     )
 

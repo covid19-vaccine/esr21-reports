@@ -12,11 +12,11 @@ class ScreeningStatisticsManager(SearchSlugManager, models.Manager):
 class ScreeningStatistics(BaseUuidModel):
 
     objects = ScreeningStatisticsManager()
-
+    
     site = models.CharField(
         verbose_name='Site',
         max_length=150,
-        unique=True
+        unique=True,
     )
 
     dose1 = models.PositiveIntegerField(
@@ -30,3 +30,6 @@ class ScreeningStatistics(BaseUuidModel):
     dose3 = models.PositiveIntegerField(
         verbose_name='Booster dose screening',
     )
+
+    totals = models.PositiveIntegerField(
+        verbose_name='Total dose screening',)
