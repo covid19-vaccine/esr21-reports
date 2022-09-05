@@ -25,13 +25,13 @@
     <td>First Dose</td>
     <td>Second Dose</td>
     <td>Overall</td>
-  	</tr>
+    </tr>
     <tr>
       <td>Gaborone</td>
       {% for data in heterologous_vaccinations.1.values %}
-      	{% for value in data.0 %}
-      		<td>{{ value }}</td>
-      	{% endfor %}
+        {% for value in data.0 %}
+          <td>{{ value }}</td>
+        {% endfor %}
       {% endfor %}
     </tr>
     <tr>

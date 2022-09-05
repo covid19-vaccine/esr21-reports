@@ -8,24 +8,23 @@
   <table class="table table-hover">
 	  <thead>
 	    <tr>
-	      <th scope="col">Variable</th>
-		  {% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
+	      <th scope="col">Site</th>
+		  <th scope="col">Adverse Events</th>
+		  <th scope="col">Serious Adverse Events</th>
+		  <th scope="col">AE of Special Interest</th>
           <th class="column_head">Totals</th>
 	    </tr>
 	  </thead>
 	  <tbody>
-	    <tr>
-	      <td>Adverse Events</td>
-		  {% for data in adverse_events.0 %}  <td>{{ data }}</td>  {% endfor %}
-	    </tr>
-	    <tr>
-	      <td>Serious Adverse Events</td>
-		  {% for data in adverse_events.1 %}  <td>{{ data }}</td>  {% endfor %}
-	    </tr>
-	    <tr>
-	      <td>AE of Special Interest</td>
-		  {% for data in adverse_events.2 %}  <td>{{ data }}</td>  {% endfor %}
-	    </tr>
+		{% for data in adverse_events %}
+			<tr>
+				<td>{{ data.site }}</td>
+				<td>{{ data.ae }}</td>
+				<td>{{ data.serious_ae }}</td>
+				<td>{{ data.special_ae }}</td>
+				<td>{{ data.total }}</td>
+			</tr>
+		{% endfor %}
 	  </tbody>
 	</table>
   </div>

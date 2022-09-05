@@ -13,10 +13,15 @@ class EnrollmentStatistics(BaseUuidModel):
 
     objects = EnrollmentStatisticsManager()
 
+    site_series = models.CharField(
+        verbose_name='Site Series',
+        max_length=150,
+        unique=True
+    )
+
     site = models.CharField(
         verbose_name='Site',
         max_length=150,
-        unique=True
     )
 
     total = models.PositiveIntegerField(
@@ -32,6 +37,21 @@ class EnrollmentStatistics(BaseUuidModel):
     female = models.PositiveIntegerField(
         verbose_name='Site Total Females',
         default=0
+    )
+
+    main_cohort = models.CharField(
+        verbose_name='Cohort',
+        max_length=150,
+    )
+
+    sub_cohort = models.CharField(
+        verbose_name='Cohort',
+        max_length=150,
+    )
+
+    series = models.CharField(
+        verbose_name='Series',
+        max_length=150,
     )
 
     months = models.TextField()
