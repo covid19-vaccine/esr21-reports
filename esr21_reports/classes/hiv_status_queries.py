@@ -84,27 +84,3 @@ class HIVStatusQueries(QueryGeneration):
                     status=OPEN,
                     subject=subject,
                     comment=comment % {'visits': ', '.join(art_visits), })
-            else:
-                try:
-                    latest_med = medical_history.latest('report_datetime')
-                except self.medical_history_cls.DoesNotExist:
-                    pass
-                else:
-                    med_art = latest_med.medicaldiagnosis_set.filter(
-                        rel_conc_meds__icontains='ARV')
-                    if med_art:
-                        subject_identifier = latest_med.subject_visit.subject_identifier
-                        visit_code = latest_med.subject_visit.visit_code
-                        visit_code_sequence = latest_med.subject_visit.visit_code_sequence
-                        art_visits.append(f'{visit_code}.{visit_code_sequence}')
-                        neg_art.update({f'{subject_identifier}': art_visits})
-                        # create action item
-                        self.create_action_item(
-                            site=latest_med.site,
-                            subject_identifier=subject_identifier,
-                            query_name=query.query_name,
-                            assign=assign,
-                            status=OPEN,
-                            subject=subject,
-                            comment=comment % {
-                                'visits': ', '.join(art_visits)})
