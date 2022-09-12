@@ -248,19 +248,23 @@ class QueryGeneration:
                 entry_status='REQUIRED')
 
             for missing_crf in required_crfs:
-                assign = self.site_issue_assign_opts.get(missing_crf.site.id)
-                model = missing_crf.model
-                model = model.split('.')[1]
-                visit_code = missing_crf.visit_code
-                subject = f'Participant is missing {model} data for visit {visit_code}.'
-                comment = f'{subject} Please complete the missing data for the form'
-                self.create_action_item(
-                    site=missing_crf.site,
-                    subject_identifier=missing_crf.subject_identifier,
-                    query_name=query.query_name,
-                    assign=assign,
-                    subject=subject,
-                    comment=comment, )
+                model_cls = django_apps.get_model(missing_crf.model)
+                try:
+                    model_cls.objects.get(subject_visit=visit, )
+                except model_cls.DoesNotExist:
+                    assign = self.site_issue_assign_opts.get(missing_crf.site.id)
+                    model = missing_crf.model
+                    model = model.split('.')[1]
+                    visit_code = missing_crf.visit_code
+                    subject = f'Participant is missing {model} data for visit {visit_code}.'
+                    comment = f'{subject} Please complete the missing data for the form'
+                    self.create_action_item(
+                        site=missing_crf.site,
+                        subject_identifier=missing_crf.subject_identifier,
+                        query_name=query.query_name,
+                        assign=assign,
+                        subject=subject,
+                        comment=comment, )
 
     @property
     def male_child_bearing_potential(self):
