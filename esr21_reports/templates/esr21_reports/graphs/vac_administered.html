@@ -65,24 +65,19 @@
                     text: 'First & Second Dose Administered across all sites'
                 },
                 xAxis: {
-                    categories: ['First Dose', 'Second Dose'],
+                    categories: ['First Dose', 'Second Dose', 'Booster Dose'],
                     title: {
                         text: null
                     }
                 },
                 yAxis: {
-                    min: 0,
-                    max: 100,
                     title: {
-                        text: 'Percentage of participants who received the vaccine (%)',
+                        text: 'Number of participants who received the vaccine',
                         align: 'high'
                     },
                     labels: {
                         overflow: 'justify'
                     }
-                },
-                tooltip: {
-                    valueSuffix: ' %'
                 },
                 plotOptions: {
                     bar: {
@@ -95,7 +90,7 @@
                     enabled: false
                 },
                 series: [{
-                    name:'Dose',
+                    name:'dose',
                     data: {{all_sites_dose}}
                 },]
             });
@@ -115,7 +110,7 @@
                     type: 'column'
                 },
                 title: {
-                    text: 'First & Second Dose Administered by study site'
+                    text: 'First, Second and Booster Dose Administered by study site'
                 },
                 xAxis: {
                     categories: [
@@ -125,18 +120,13 @@
                     }
                 },
                 yAxis: {
-                    min: 0,
-                    max: 35,
                     title: {
-                        text: 'Vaccines used per site out of 12,305 doses administered (%)',
+                        text: 'Vaccines used per site out of 12,305 doses administered',
                         align: 'high'
                     },
                     labels: {
                         overflow: 'justify'
                     }
-                },
-                tooltip: {
-                    valueSuffix: ' %'
                 },
                 plotOptions: {
                     bar: {
@@ -150,10 +140,14 @@
                 },
                 series: [{
                     name: 'First Dose',
-                    data: {{vac_details_first_dose}}
+                    data: {{ vac_details_first }}
                 }, {
                     name: 'Second Dose',
-                    data: {{vac_details_second_dose}}
+                    data: {{ vac_details_second }}
+                },
+                {
+                    name: 'Booster Dose',
+                    data: {{ booster_dose_count }}
                 },]
             });
         </script>

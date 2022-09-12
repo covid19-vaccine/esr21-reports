@@ -1,0 +1,31 @@
+<div class="row w-100">
+
+<div class="col-md-12">
+
+	<div class="panel panel-success">
+	  <div class="panel-heading"><h5>Enrolments</h5></div>
+	  <div class="panel-body">
+	  <table class="table table-hover">
+		  <thead>
+		    <tr>
+		      <th scope="col">Site</th>
+			  <th scope="col">Main Cohort</th>
+			  <th scope="col">Sub Cohort</th>
+		      <th scope="col">Totals</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+			{% for data in homologous_enrollments %}
+		    <tr>
+		      <td>{{ data.site }}</td>
+			  <td>{{ data.main_cohort }}</td>
+			  <td>{{ data.sub_cohort }}</td>
+			  <td>{{ data.total }}</td>
+		    </tr>
+			{% endfor %}
+		  </tbody>
+		</table>
+	  </div>
+	</div>
+</div>
+</div>

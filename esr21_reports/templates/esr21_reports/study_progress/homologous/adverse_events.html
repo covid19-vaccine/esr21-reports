@@ -1,0 +1,33 @@
+<div class="row w-100">
+
+<div class="col-md-12">
+
+<div class="panel panel-warning">
+  <div class="panel-heading"><h5>Adverse Events</h5></div>
+  <div class="panel-body">
+  <table class="table table-hover">
+	  <thead>
+	    <tr>
+	      <th scope="col">Site</th>
+		  <th scope="col">Adverse Events</th>
+		  <th scope="col">Serious Adverse Events</th>
+		  <th scope="col">AE of Special Interest</th>
+          <th class="column_head">Totals</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+		{% for data in adverse_events %}
+			<tr>
+				<td>{{ data.site }}</td>
+				<td>{{ data.ae }}</td>
+				<td>{{ data.serious_ae }}</td>
+				<td>{{ data.special_ae }}</td>
+				<td>{{ data.total }}</td>
+			</tr>
+		{% endfor %}
+	  </tbody>
+	</table>
+  </div>
+</div>
+</div>
+</div>

@@ -1,4 +1,4 @@
-from django.apps import apps as django_apps
+import pandas as pd
 from edc_base.view_mixins import EdcBaseViewMixin
 from datetime import datetime,timedelta
 from django.db.models import Q
@@ -52,6 +52,17 @@ class StatsPerWeekMixin(EnrollmentStatsMixin,
                 Q(start_date__lte=end_date) & Q(start_date__gte=start_date))
         return overall.count()
 
+    @property
+    def monthly_dates(self):
+        weekly_dates = [_date.strftime('%Y/%m/%d') for week_pair_dates in self.weekly_dates for _date in week_pair_dates[:1]]
+        s = pd.to_datetime(pd.Series(weekly_dates))
+        s.index = s.dt.to_period('m')
+        s = s.groupby(level=0).size()
+        return s.items()
+    
+    def group_weekly_dates_by_month(self):
+        pass
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -62,6 +73,10 @@ class StatsPerWeekMixin(EnrollmentStatsMixin,
             overall_ae_stats=self.overall_ae_stats,
             overall_sae_stats=self.overall_sae_stats,
             overall_aesi_stats=self.overall_aesi_stats,
-            overall_second_dose_stats=self.overall_second_dose_stats
+            overall_second_dose_stats=self.overall_second_dose_stats,
+            monthly_dates=self.monthly_dates,
+            all_ae=self.all_ae,
+            all_sae=self.all_sae,
+            all_aesi=self.all_aesi,
         )
         return context

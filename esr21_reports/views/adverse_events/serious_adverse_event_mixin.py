@@ -1,11 +1,13 @@
 from django.apps import apps as django_apps
 from django.db.models import Q, Count
 from edc_constants.constants import NEG, POS, YES, NO
-
+from ..site_helper_mixin import SiteHelperMixin
 
 class SeriousAdverseEventRecordMixin:
 
     sae_record_model = 'esr21_subject.seriousadverseeventrecord'
+    sae_model = 'esr21_subject.seriousadverseeventrecord'
+    aei_model = 'esr21_subject.specialinterestadverseevent'
     ae_record_model = 'esr21_subject.adverseeventrecord'
     rapid_hiv_testing_model = 'esr21_subject.rapidhivtesting'
     vaccination_detail_model = 'esr21_subject.vaccinationdetails'
@@ -15,6 +17,14 @@ class SeriousAdverseEventRecordMixin:
     @property
     def sae_record_cls(self):
         return django_apps.get_model(self.sae_record_model)
+
+    @property
+    def sae_cls(self):
+        return django_apps.get_model(self.sae_model)
+
+    @property
+    def aei_cls(self):
+        return django_apps.get_model(self.aei_model)
 
     @property
     def demographics_data_cls(self):
@@ -139,7 +149,8 @@ class SeriousAdverseEventRecordMixin:
     @property
     def all_sae_records(self):
         sae_ids = self.sae_record_cls.objects.all().distinct().values_list(
-            'serious_adverse_event__subject_visit__subject_identifier', flat=True)
+            'serious_adverse_event__subject_visit__subject_identifier',
+            flat=True)
         all_sae = []
         for subject_identifier in sae_ids:
             sae = self.sae_record(subject_identifier)
@@ -190,7 +201,8 @@ class SeriousAdverseEventRecordMixin:
             mild=Count('ctcae_grade', filter=Q(ctcae_grade='mild')),
             moderate=Count('ctcae_grade', filter=Q(ctcae_grade='moderate')),
             severe=Count('ctcae_grade', filter=Q(ctcae_grade='severe')),
-            life_threatening=Count('ctcae_grade', filter=Q(ctcae_grade='life_threatening')),
+            life_threatening=Count('ctcae_grade',
+                                   filter=Q(ctcae_grade='life_threatening')),
             fatal=Count('ctcae_grade', filter=Q(ctcae_grade='fatal')),
         )
 
@@ -200,7 +212,8 @@ class SeriousAdverseEventRecordMixin:
             mild=Count('ctcae_grade', filter=Q(ctcae_grade='mild')),
             moderate=Count('ctcae_grade', filter=Q(ctcae_grade='moderate')),
             severe=Count('ctcae_grade', filter=Q(ctcae_grade='severe')),
-            life_threatening=Count('ctcae_grade', filter=Q(ctcae_grade='life_threatening')),
+            life_threatening=Count('ctcae_grade',
+                                   filter=Q(ctcae_grade='life_threatening')),
             fatal=Count('ctcae_grade', filter=Q(ctcae_grade='fatal')),
         )
 
@@ -226,30 +239,32 @@ class SeriousAdverseEventRecordMixin:
             return self.rapid_hiv_testing_cls.objects.get(
                 subject_visit__subject_identifier=subject_identifier,)
         except self.rapid_hiv_testing_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def consent(self, subject_identifier):
         try:
-            return self.consent_cls.objects.get(subject_identifier=subject_identifier)
+            return self.consent_cls.objects.filter(
+                subject_identifier=subject_identifier
+                ).latest('consent_datetime')
         except self.consent_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def sae_record(self, subject_identifier):
         try:
-            return self.sae_record_cls.objects.get(
+            return self.sae_record_cls.objects.filter(
                 serious_adverse_event__subject_visit__subject_identifier=subject_identifier)
         except self.sae_record_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def ae_record(self, subject_identifier):
         try:
-            return self.ae_record_cls.objects.get(
+            return self.ae_record_cls.objects.filter(
                 adverse_event__subject_visit__subject_identifier=subject_identifier)
         except self.ae_record_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def vaccination_record(self, subject_identifier, dose):
@@ -258,7 +273,7 @@ class SeriousAdverseEventRecordMixin:
                 subject_visit__subject_identifier=subject_identifier,
                 received_dose_before=dose)
         except self.vaccination_detail_cls.DoesNotExist:
-                pass
+            pass
         return None
 
     def demographics_record(self, subject_identifier):
@@ -266,5 +281,42 @@ class SeriousAdverseEventRecordMixin:
             return self.demographics_data_cls.objects.get(
                 subject_visit__subject_identifier=subject_identifier)
         except self.demographics_data_cls.DoesNotExist:
-                pass
+            pass
         return None
+
+    @property
+    def sae_overall(self):
+        overall = self.sae_cls.objects.count()
+        gaborone = self.get_sae_by_site('Gaborone').count()
+        maun = self.get_sae_by_site('Maun').count()
+        serowe = self.get_sae_by_site('Serowe').count()
+        f_town = self.get_sae_by_site('Francistown').count()
+        phikwe = self.get_sae_by_site('Phikwe').count()
+
+        return ['Serious Adverse Events', overall, gaborone, maun, serowe,
+                f_town, phikwe, ]
+
+    @property
+    def aei_overall(self):
+        overall = self.aei_cls.objects.count()
+        gaborone = self.get_aei_by_site('Gaborone').count()
+        maun = self.get_aei_by_site('Maun').count()
+        serowe = self.get_aei_by_site('Serowe').count()
+        f_town = self.get_aei_by_site('Francistown').count()
+        phikwe = self.get_aei_by_site('Phikwe').count()
+
+        return ['AE of Special Interest', overall, gaborone, maun, serowe,
+                f_town, phikwe, ]
+
+    def get_sae_by_site(self, site=None):
+        site_helper = SiteHelperMixin()
+
+        site_id = site_helper.get_site_id(site)
+        if site_id:
+            return self.sae_cls.objects.filter(site_id=site_id)
+
+    def get_aei_by_site(self, site=None):
+        site_helper = SiteHelperMixin()
+        site_id = site_helper.get_site_id(site)
+        if site_id:
+            return self.aei_cls.objects.filter(site_id=site_id)

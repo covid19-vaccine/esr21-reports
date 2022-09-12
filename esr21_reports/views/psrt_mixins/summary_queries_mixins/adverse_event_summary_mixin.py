@@ -25,7 +25,7 @@ class AdverseEventSummaryMixin(EdcBaseViewMixin):
                 subject_identifier = ae[0]
                 ae_start_date = ae[1]
                 try:
-                    vaccination = self.vaccination_details_cls.objects.get(
+                    self.vaccination_details_cls.objects.get(
                         Q(received_dose_before='first_dose') &
                         Q(subject_visit__subject_identifier=subject_identifier) &
                         Q(vaccination_date__date__gt=ae_start_date))
@@ -33,10 +33,6 @@ class AdverseEventSummaryMixin(EdcBaseViewMixin):
                     pass
                 else:
                     site_aes += 1
-                    print(f'first dose vaccination date: {vaccination.vaccination_date.date()}')
-                    print(f'ae start_date: {ae_start_date}')
-                    print(f'subject identifier: {subject_identifier}')
-                    print('***************************************************\n')
             ae_stats.append(site_aes)
               
         return ["AE start date is before first dose", *ae_stats, sum(ae_stats)]

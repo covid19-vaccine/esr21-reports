@@ -1,9 +1,15 @@
 from django.apps import apps as django_apps
 
+from esr21_reports.views.site_helper_mixin import SiteHelperMixin
+
 
 class SeriousAdverseEventStatsMixin:
     
     sae_model = 'esr21_subject.seriousadverseeventrecord'
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.site_helper = SiteHelperMixin()
     
     @property
     def sae_model_cls(self):
@@ -14,7 +20,7 @@ class SeriousAdverseEventStatsMixin:
         overall_stats = self.count_overall_sae_stats_by_week(start_week_date, end_week_date)
         if overall_stats > 0:
             stats.append(overall_stats)
-            for site_name in self.sites_names:
+            for site_name in self.site_helper.sites_names:
                     site_stats = self.count_sae_stats_by_week(site_name, start_week_date, end_week_date)
                     stats.append(site_stats)
             return stats
@@ -27,6 +33,10 @@ class SeriousAdverseEventStatsMixin:
     def count_overall_sae_stats_by_week(self, start_date, end_date):
         model_cls = 'sae_model_cls'
         return self.count_overall_stats_by_week(model_cls, start_date, end_date)
+    
+    @property
+    def all_sae(self):
+        return self.sae_model_cls.objects.count()
     
     @property
     def overall_sae_stats(self):

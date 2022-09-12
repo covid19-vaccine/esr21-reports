@@ -1,0 +1,33 @@
+<div class="row w-100">
+
+<div class="col-md-12">
+
+	<div class="panel panel-info">
+	  <div class="panel-heading"><h5>Site Screenings & Overall</h5></div>
+	  <div class="panel-body">
+	  <table class="table table-hover">
+		  <thead>
+		    <tr>
+		      <th scope="col">Site</th>
+			  <th scope="col">First dose</th>
+			  <th scope="col">Second dose</th>
+			  <th scope="col">Booster dose</th>
+		      <th scope="col">Totals</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+			{% for data in site_screening %} 
+				<tr>
+					<td>{{ data.site }}</td>
+					<td>{{ data.dose1 }}</td>  
+					<td>{{ data.dose2 }}</td>  
+					<td>{{ data.dose3 }}</td>  
+					<td>{{ data.totals }}</td>  
+				</tr>
+			{% endfor %}
+		  </tbody>
+		</table>
+	  </div>
+	</div>
+</div>
+</div>

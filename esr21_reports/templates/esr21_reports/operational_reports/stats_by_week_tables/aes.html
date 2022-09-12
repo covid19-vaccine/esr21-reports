@@ -7,6 +7,7 @@
                 <table class="table table-bordered table-sm ">
                     <thead class="thead-dark">
                         <tr>
+                        	<th>Month</th>
                             <th>Week</th>
                             <th>Overall</th>
                             {% for site in sites %}
@@ -16,18 +17,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for data in overall_ae_stats %}
-                            <tr>
-                                <td>{{data.0}}</td>
-                                <td>{{data.1}}</td>
-                                <td>{{data.2}}</td>
-                                <td>{{data.3}}</td>
-                                <td>{{data.4}}</td>
-                                <td>{{data.5}}</td>
-                                <td>{{data.6}}</td>
-                            </tr>
-                            {% endfor %}
-                    </tbody>
+                   		<!-- {%for k,v in monthly_dates %}
+                   			<tr>
+                   				<td colspan="{{ v }}">k</td>
+                   			</tr>
+                   		{% endfor %} -->
+                           {% for data in overall_ae_stats %}
+                           <tr >
+                           	   <td rowspan="3"></td>
+                               <td>{{data.0}}</td>
+                               <td>{{data.1}}</td>
+                               <td>{{data.2}}</td>
+                               <td>{{data.3}}</td>
+                               <td>{{data.4}}</td>
+                               <td>{{data.5}}</td>
+                               <td>{{data.6}}</td>
+                           </tr>
+                           {% endfor %}
+                   </tbody>
                 </table>
             </div>
         </div>

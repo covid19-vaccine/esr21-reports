@@ -1,7 +1,10 @@
+import json
 from django.apps import apps as django_apps
 from django.views.generic import TemplateView
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_navbar import NavbarViewMixin
+
+from esr21_reports.models import DashboardStatistics
 from .adverse_events import (
     AdverseEventRecordViewMixin, SeriousAdverseEventRecordViewMixin)
 from .site_helper_mixin import SiteHelperMixin
@@ -19,6 +22,18 @@ class PSRTView(SiteHelperMixin,
     sae_model = 'esr21_subject.seriousadverseeventrecord'
     siae_model = 'esr21_subject.specialinterestadverseeventrecord'
     offstudy_model = 'esr21_prn.subjectoffstudy'
+    
+    def cache_preprocessor(self, key):
+        statistics = None
+        
+        try:
+            dashboard_statistics = DashboardStatistics.objects.get(key=key)
+        except DashboardStatistics.DoesNotExist:
+            pass
+        else:
+            statistics =  json.loads(dashboard_statistics.value)
+        
+        return statistics
 
 
 

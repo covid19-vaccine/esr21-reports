@@ -27,7 +27,7 @@
         },
 
         xAxis: {
-          categories: [{% for site in site_age_dist %} '{{ site.0 }}' , {% endfor %}],
+          categories: [{% for site_obj in site_age_dist %} '{{ site_obj.site | safe }}' , {% endfor %}],
           title: {
             text: 'Sites'
           }
@@ -41,7 +41,7 @@
 
         series: [{
           name: 'Observations',
-          data: [{% for value in site_age_dist %} {{ value.1 }} ,  {% endfor %}],
+          data: [{% for value in site_age_dist %} {{ value }} ,  {% endfor %}],
 
         }, 
         {

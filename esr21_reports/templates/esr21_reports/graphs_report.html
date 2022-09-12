@@ -39,22 +39,32 @@
     	  <div class="panel-group">
 		
 		    <div class="panel panel-info">
-		      <div class="panel-heading">Screening</div>
+		      <div class="panel-heading">Total Enrollments</div>
 		      <div class="panel-body">
 		      	<section id="screening_graphs">
-		            {% include './graphs/screening_graphs.html' %}
+		            {% include './graphs/total_enrollment_graphs.html' %}
 		        </section>
 		      </div>
 		    </div>
 		    
 		    <hr>
+			<div class="panel panel-info">
+				<div class="panel-heading">Vaccination Retention Rate</div>
+				<div class="panel-body">
+					<section id="retention_rate_graphs">
+					  {% include './graphs/retention_rate.html' %}
+				  </section>
+				</div>
+			  </div>
+			<hr>
 		    
 		    <div class="panel panel-success">
 		      <div class="panel-heading">Enrollment</div>
 		      <div class="panel-body">
 		      	
 		      	<section id="enrollments_graphs">
-		            {% include './graphs/enrollments_graphs.html' %}
+					{% include './graphs/homologous_series_overtime.html' %}
+					{% include './graphs/heterologous_series_overtime.html' %}
 		        </section>
 		        <hr>
 		        <section id="vac_administered">
@@ -65,10 +75,6 @@
 		            {% include './graphs/missed_2nd_dose_bar_graph.html' %}
 		        </section>
 		        <hr>
-		        <section id="age_dist_boxplot">
-		            {% include './graphs/age_distribution_boxplot.html' %}
-		        </section>
-		        
 		      </div>
 		    </div>
 		

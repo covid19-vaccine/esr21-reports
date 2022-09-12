@@ -1,17 +1,23 @@
 import json
+from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from edc_base.view_mixins import EdcBaseViewMixin
 from esr21_subject.models import VaccinationDetails, InformedConsent
 from edc_constants.constants import FEMALE, MALE
+from django.db.models import Q
+
+from ...models import VaccinationEnrollments
 
 
 class EnrollmentGraphMixin(EdcBaseViewMixin):
 
+    enrollment_stats_model = 'esr21_reports.enrollmentstatistics'
+
+    doses = ['sinovac', 'pfizer', 'moderna', 'janssen', 'astrazeneca']
+
     @property
-    def sites_names(self):
-        site_names = Site.objects.values_list('name', flat=True)
-        site_names = list(map(lambda name: name.split('-')[1], site_names))
-        return site_names
+    def enrollment_stats_cls(self):
+        return django_apps.get_model(self.enrollment_stats_model)
 
     @property
     def site_age_dist(self):
@@ -26,10 +32,9 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
         site_ids = Site.objects.order_by('id').values_list('id', flat=True)
         return site_ids
 
-    def get_vaccinated_by_site(self):
+    def get_vaccinated_by_site(self, site_id):
         """Return a dictionary of site first dose vaccinations by gender.
         """
-
         statistics = {
             'females': [],
             'males': []}
@@ -42,68 +47,133 @@ class EnrollmentGraphMixin(EdcBaseViewMixin):
             'subject_identifier', flat=True)
         male_pids = list(set(male_pids))
 
-        enrolled = VaccinationDetails.objects.filter(
-            received_dose_before='first_dose').count()
+        enrolled = VaccinationDetails.objects.distinct().count()
+        males = VaccinationDetails.objects.filter(
+            subject_visit__subject_identifier__in=male_pids,
+            site_id=site_id).distinct().count()
+        male_percentage = (males / enrolled) * 100
+        statistics['males'].append(round(male_percentage, 1))
 
-        for site_id in self.site_ids:
+        females = VaccinationDetails.objects.filter(
+            subject_visit__subject_identifier__in=female_pids,
+            site_id=site_id).distinct().count()
+        female_percentage = (females / enrolled) * 100
+        statistics['females'].append(round(female_percentage, 1))
 
-            males = VaccinationDetails.objects.filter(
-                subject_visit__subject_identifier__in=male_pids,
-                received_dose_before='first_dose', site_id=site_id).count()
-            percentage = (males / enrolled) * 100
-            statistics['males'].append(round(percentage, 1))
+        return male_percentage, female_percentage
 
-            females = VaccinationDetails.objects.filter(
-                subject_visit__subject_identifier__in=female_pids,
-                received_dose_before='first_dose', site_id=site_id).count()
-            percentage = (females / enrolled) * 100
-            statistics['females'].append(round(percentage, 1))
+    @property
+    def total_2nd_booster_enrollments(self):
+        doses = VaccinationEnrollments.objects.all()
+        total_doses = []
+        for dose in doses:
+            total = dose.sinovac+dose.pfizer+dose.astrazeneca+dose.moderna+dose.janssen
+            total_doses.append(total)
+        return sum(total_doses)
 
-        return statistics
+    @property
+    def second_booster_enrolment_comparison(self):
+        doses = VaccinationEnrollments.objects.all()
+        total_doses = []
+        for dose in doses:
+            total = dose.sinovac+dose.pfizer+dose.astrazeneca+dose.moderna+dose.janssen
+            total_doses.append([dose.sinovac, dose.pfizer, dose.astrazeneca,
+                                dose.moderna, dose.janssen, total])
+        return total_doses
 
-    def get_overall_participant(self):
-        """Returns a list of total enrolled participants per site and overall sites.
-        """
-        overall_statistics = []
+    @property
+    def pie_total_doses_enrolled(self):
+        other_vaccines = self.total_2nd_booster_enrollments
+        total = VaccinationDetails.objects.filter(received_dose_before='first_dose').distinct().count()
+        azd_1222 = total - other_vaccines
+        return [azd_1222, other_vaccines]
 
-        for site_id in self.site_ids:
+    def total_enrolled(self):
+        second_dose = self.second_dose_at_enrollment
+        booster_dose = self.booster_dose_at_enrollment
+        first_dose = self.first_dose_enrollment
+        return [sum(first_dose), sum(second_dose), sum(booster_dose)]
 
-            enrolled = VaccinationDetails.objects.filter(
-                received_dose_before='first_dose',
-                site_id=site_id).values_list('subject_visit__subject_identifier').count()
-            overall_statistics.append(enrolled)
+    @property
+    def first_dose_enrollment(self):
+        totals = []
+        for site_id in range(40, 45):
+            first_dose = VaccinationDetails.objects.filter(
+                received_dose_before='first_dose', site_id=site_id).distinct().count()
+            totals.append(first_dose)
+        return totals
 
-        all_enrolled = VaccinationDetails.objects.filter(
-            received_dose_before='first_dose').values_list('subject_visit__subject_identifier').count()
+    @property
+    def second_dose_at_enrollment(self):
+        totals = []
+        ids = self.vaccination_history_cls.objects.filter(
+            Q(dose_quantity=1)).exclude(
+            Q(dose1_product_name='azd_1222')).values_list(
+                'subject_identifier', flat=True)
 
-        overall_statistics.append(all_enrolled)
+        for site_id in range(40, 45):
+            total_second_dose = self.vaccination_model_cls.objects.filter(
+                site_id=site_id,
+                received_dose_before='second_dose',
+                subject_visit__subject_identifier__in=ids).values_list(
+                    'subject_visit__subject_identifier', flat=True).distinct().count()
+            totals.append(total_second_dose)
 
-        return overall_statistics
+        return totals
 
-    def get_overall_percentage(self):
-        """Returns a list of total enrollments in perccentages.
-        """
-        percentages = []
-        total_participants = self.get_overall_participant()[-1]
+    @property
+    def booster_dose_at_enrollment(self):
+        totals = []
 
-        for participants in self.get_overall_participant():
-            perc = (participants / total_participants) * 100
-            percentages.append(round(perc, 1))
-        return percentages
+        ids = self.vaccination_history_cls.objects.filter(
+            dose_quantity=2).exclude(
+                Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
+                'subject_identifier', flat=True)
+
+        for site_id in range(40, 45):
+            total_booster = self.vaccination_model_cls.objects.filter(
+                site_id=site_id,
+                received_dose_before='booster_dose',
+                subject_visit__subject_identifier__in=ids
+                ).values_list('subject_visit__subject_identifier',
+                              flat=True).distinct().count()
+            totals.append(total_booster)
+
+        return totals
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        gender_by_site = self.get_vaccinated_by_site()
-        overall_participant = self.get_overall_participant()
-        overall_percentages = self.get_overall_percentage()
-
+        all_enrollments = self.enrollment_stats_cls.objects.all()
+        females = []
+        males = []
+        overalls = []
+        sites = []
+        totals = 0
+        percentages = []
+        for enrollment in all_enrollments:
+            sites.append(enrollment.site)
+            females.append(enrollment.female)
+            males.append(enrollment.male)
+            overalls.append(enrollment.total)
+            totals += enrollment.total
+        for overal in overalls:
+            percentage = (overal / totals) * 100
+            percentages.append(percentage)
+        overalls.append(totals)
+        sites.append('All Sites')
         context.update(
-            site_names=self.sites_names,
-            females=json.dumps(gender_by_site['females']),
-            males=json.dumps(gender_by_site['males']),
-            overall=json.dumps(overall_participant),
-            overall_percentages=json.dumps(overall_percentages),
-
+            site_names=sites,
+            females=json.dumps(females),
+            males=json.dumps(males),
+            overall=json.dumps(overalls),
+            overall_percentages=json.dumps(percentages),
+            overall_dose_enrollements=self.total_2nd_booster_enrollments,
+            total_enrolled=self.total_enrolled(),
+            second_dose_at_enrollment=self.second_dose_at_enrollment,
+            booster_dose_at_enrollment=self.booster_dose_at_enrollment,
+            first_dose_enrollment=self.first_dose_enrollment,
+            pie_total_doses_enrolled=self.pie_total_doses_enrolled,
+            second_booster_enrolment_comparison=self.second_booster_enrolment_comparison,
+            doses=[*self.doses,'Total']
         )
-
         return context

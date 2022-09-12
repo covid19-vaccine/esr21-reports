@@ -1,0 +1,34 @@
+<div class="row w-100">
+
+<div class="col-md-12">
+
+<div class="panel panel-warning">
+  <div class="panel-heading"><h5>Adverse Events</h5></div>
+  <div class="panel-body">
+  <table class="table table-hover">
+	  <thead>
+	    <tr>
+	      <th scope="col">Variable</th>
+	      	{% for site in sites_names %}  <th scope="col">{{ site }}</th>  {% endfor %}
+          <th class="column_head">Totals</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr>
+	      <td>Adverse Events</td>
+	      {% for data in heterologous_aes %}  <td>{{ data.ae }}</td>  {% endfor %}
+	    </tr>
+	    <tr>
+	      <td>Serious Adverse Events</td>
+	      {% for data in heterologous_aes %}  <td>{{ data.serious_ae }}</td>  {% endfor %}
+	    </tr>
+	    <tr>
+	      <td>AE of Special Interest</td>
+	      {% for data in heterologous_aes %}  <td>{{ data.special_ae }}</td>  {% endfor %}
+	    </tr>
+	  </tbody>
+	</table>
+  </div>
+</div>
+</div>
+</div>

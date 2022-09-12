@@ -6,7 +6,7 @@ from edc_base.utils import get_utcnow
 from esr21_subject.models import VaccinationDetails
 
 
-class AeModelWrapper( ModelWrapper):
+class AeModelWrapper(ModelWrapper):
 
     model = 'esr21_subject.adverseeventrecord'
     next_url_attrs = ['subject_identifier']
@@ -49,7 +49,6 @@ class AeModelWrapper( ModelWrapper):
             return None
         else:
             return vaccination
-            
 
     @property
     def second_dose(self):
@@ -63,7 +62,7 @@ class AeModelWrapper( ModelWrapper):
             return None
         else:
             return vaccination
-    
+
     @property
     def first_dose_date(self):
         if self.first_dose:

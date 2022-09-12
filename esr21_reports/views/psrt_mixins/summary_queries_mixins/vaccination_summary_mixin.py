@@ -51,9 +51,8 @@ class VaccinationSummaryMixin(EdcBaseViewMixin):
                 Q(subject_visit__subject_identifier__in=consented_ineligible)).count()
             not_eligible.append(vaccinated_count)
 
-        return ['Participant vaccinated but ineligible', *not_eligible, sum(not_eligible)]
-    
-    
+        return ['Participant vaccinated but ineligible', *not_eligible, sum(not_eligible)]   
+
     # @property
     # def vaccinated_no_icf_statistics(self):
     #     """

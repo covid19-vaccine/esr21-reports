@@ -33,7 +33,6 @@ ETC_DIR = '/etc/'
 
 APP_NAME = 'esr21_reports'
 
-
 # Application definition
 
 INSTALLED_APPS = [
