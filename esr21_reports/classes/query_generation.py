@@ -69,7 +69,10 @@ class QueryGeneration:
 
     @property
     def overall_enrols(self):
-        return self.homologous_enrols + self.heterologous_first_enrols + self.heterologous_second_enrols
+        enrols = self.vaccination_details_cls.objects.filter(
+            received_dose=YES, site_id=self.site_id).values_list(
+                'subject_visit__subject_identifier', flat=True).distinct()
+        return [enrol for enrol in enrols]
 
     @property
     def homologous_enrols(self):
@@ -80,7 +83,7 @@ class QueryGeneration:
     @property
     def heterologous_first_enrols(self):
         hist = self.vaccination_history_cls.objects.filter(
-            dose_quantity='1', site_id=self.site_id).exclude(dose1_product_name='azd_1222').values_list(
+            site_id=self.site_id).exclude(dose1_product_name='azd_1222').values_list(
                 'subject_identifier', flat=True)
 
         enrols = self.vaccination_details_cls.objects.filter(
@@ -158,24 +161,22 @@ class QueryGeneration:
                   " This needs to be recaptured on the system"
         query = self.create_query_name(
             query_name='Missing First Dose Data')
-        hist = self.vaccination_history_cls.objects.filter(
-            dose_quantity='1', site_id=self.site_id).exclude(
-                dose1_product_name='azd_1222').values_list('subject_identifier', flat=True)
 
-        hetero_enrols = self.vaccination_details_cls.objects.filter(
-            received_dose_before='second_dose',
-            subject_visit__subject_identifier__in=hist).values_list(
-                'subject_visit__subject_identifier', flat=True)
+        first_doses = self.vaccination_details_cls.objects.filter(
+            received_dose_before='first_dose', site_id=self.site_id).values_list(
+                'subject_visit__subject_identifier', flat=True).distinct()
 
         second_doses = self.vaccination_details_cls.objects.filter(
             received_dose_before='second_dose', site_id=self.site_id).exclude(
-                subject_visit__subject_identifier__in=hetero_enrols)
+                subject_visit__subject_identifier__in=first_doses)
 
         for dose in second_doses:
-            first_dose = self.vaccination_details_cls.objects.filter(
-                subject_visit__subject_identifier=dose.subject_visit.subject_identifier,
-                received_dose_before='first_dose')
-            if not first_dose:
+            try:
+                self.vaccination_history_cls.objects.get(
+                    subject_identifier=dose.subject_visit.subject_identifier,
+                    dose1_product_name__isnull=False,
+                    dose1_date__isnull=False, )
+            except self.vaccination_history_cls.DoesNotExist:
                 assign = self.site_issue_assign_opts.get(dose.site.id)
                 self.create_action_item(
                     site=dose.site,
@@ -320,7 +321,8 @@ class QueryGeneration:
     @property
     def duplicate_subject_doses(self):
         enrolled_identifiers = self.vaccination_details_cls.objects.filter(
-            site_id=self.site_id).values_list('subject_visit__subject_identifier', flat=True)
+            received_dose=YES, site_id=self.site_id).values_list(
+                'subject_visit__subject_identifier', flat=True)
         enrolled_identifiers = list(set(enrolled_identifiers))
         doses = ['first_dose', 'second_dose', 'booster_dose']
         query = self.create_query_name(
