@@ -3,6 +3,7 @@ from django.db.models import Q
 from edc_constants.constants import POS, YES, OPEN
 
 from .query_generation import QueryGeneration
+from edc_visit_tracking.constants import SCHEDULED
 
 
 class HIVStatusQueries(QueryGeneration):
@@ -24,17 +25,20 @@ class HIVStatusQueries(QueryGeneration):
         query = self.create_query_name(
             query_name='Participant\'s HIV test result is missing.')
 
-        for enrol in self.overall_enrols:
-            assign = self.site_issue_assign_opts.get(enrol.site.id)
+        for idx in self.overall_enrols:
+            enrol_visit = self.subject_visit_cls.objects.filter(
+                subject_identifier=idx, reason=SCHEDULED).earliest(
+                    'report_datetime')
+            assign = self.site_issue_assign_opts.get(enrol_visit.site.id)
             hiv_test = self.rapid_hiv_status_cls.objects.filter(
                 Q(hiv_testing_consent=YES) | Q(prev_hiv_test=YES),
-                subject_visit=enrol.subject_visit,
+                subject_visit=enrol_visit,
                 hiv_result__isnull=True,
                 rapid_test_result__isnull=True)
             if hiv_test:
                 self.create_action_item(
-                    site=enrol.site,
-                    subject_identifier=enrol.subject_visit.subject_identifier,
+                    site=enrol_visit.site,
+                    subject_identifier=idx,
                     query_name=query.query_name,
                     assign=assign,
                     status=OPEN,
@@ -48,8 +52,8 @@ class HIVStatusQueries(QueryGeneration):
         subject = 'Participant has negative HIV test status, but is on ART.',
         comment = ('Participant\'s HIV test status is negative, but has ART '
                    'medication or HIV selected on the comorbidities for the '
-                   'medical history form. This needs to be corrected/recaptured'
-                   ' on the system')
+                   'medical history form at visit %(visit)s. This needs to be '
+                   'corrected/recaptured on the system')
         query = self.create_query_name(
             query_name='Participant\'s HIV test result is missing.')
 
@@ -60,8 +64,7 @@ class HIVStatusQueries(QueryGeneration):
 
         medical_history = self.medical_history_cls.objects.filter(
                 comorbidities__name__in=['HIV']).exclude(
-                    subject_visit__subject_identifier__in=hiv_pos).values_list(
-                        'subject_visit__subject_identifier', flat=True).distinct()
+                    subject_visit__subject_identifier__in=hiv_pos)
 
         for history in medical_history:
             subject_identifier = history.subject_visit.subject_identifier
@@ -76,4 +79,4 @@ class HIVStatusQueries(QueryGeneration):
                 assign=assign,
                 status=OPEN,
                 subject=subject,
-                comment=comment)
+                comment=comment % {'visit': history.subject_visit.visit_code})
