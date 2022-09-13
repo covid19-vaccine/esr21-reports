@@ -422,7 +422,7 @@ class QueryGeneration:
         comment = f'{subject}.'
         booster_identifiers = self.vaccination_details_cls.objects.filter(
             received_dose_before='booster_dose').distinct().values_list(
-            'subject_visit__subject_identifier','site_id', flat=True).distinct()
+            'subject_visit__subject_identifier','site_id').distinct()
             
         for booster in booster_identifiers:
             
@@ -430,7 +430,7 @@ class QueryGeneration:
                 self.vaccination_history_cls.objects.get(subject_identifier=booster[0])
             except self.vaccination_history_cls.DoesNotExist:
                 subject_identifier=booster[0]
-                assign = self.site_issue_assign_opts.get(booster[0])
+                assign = self.site_issue_assign_opts.get(booster[1])
                 self.create_action_item(
                     site=booster[1],
                     subject_identifier=subject_identifier,
