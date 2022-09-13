@@ -5,6 +5,8 @@ from django.conf import settings
 from edc_appointment.constants import NEW_APPT
 from edc_constants.constants import OPEN, YES
 
+from dateutil.relativedelta import relativedelta
+from edc_base.utils import get_utcnow
 
 class QueryGeneration:
 
@@ -373,3 +375,100 @@ class QueryGeneration:
                     assign=assign,
                     subject=subject,
                     comment=comment % {'subject': subject})
+                
+                
+    @property
+    def ae_not_resolved(self): 
+        """
+        Participants with an ae start date that is greater than 3months 
+        and the ae stop date is not given
+        """
+        query = self.create_query_name(
+        query_name='AE not resolved ')
+        subject = 'Participants with ae not resolved.'
+        comment = f'{subject}. Please re-evaluate the Advers Event Record'
+        aes = self.ae_model_cls.objects.all().values_list('adverse_event__subject_visit__subject_identifier',
+                                                          'start_date',
+                                                          'stop_date','site_id').distinct()
+    
+        threshold_date = (get_utcnow() - relativedelta(months=3)).date()
+        
+        for ae in aes:
+            subject_identifier = ae[0]
+            ae_start_date = ae[1]
+            ae_stop_date = ae[2]
+            site_id = ae[3]
+            
+            if ae_start_date < threshold_date and ae_stop_date is None:
+                assign = self.site_issue_assign_opts.get(site_id)
+                self.create_action_item(
+                    site=site_id,
+                    subject_identifier=subject_identifier,
+                    query_name=query.query_name,
+                    assign=assign,
+                    subject=subject,
+                    comment=comment % {'subject': subject})
+
+    @property
+    def booster_dose_missing_vaccination_history(self):
+        """
+        Participants with a booster does but missing a vaccination history
+        """
+        query = self.create_query_name(
+        query_name='Booster missing Vaccination History')
+        subject = 'Participants with a booster does but missing a vaccination history'
+        comment = f'{subject}.'
+        booster_identifiers = self.vaccination_details_cls.objects.filter(
+            received_dose_before='booster_dose').distinct().values_list(
+            'subject_visit__subject_identifier','site_id', flat=True).distinct()
+            
+        for booster in booster_identifiers:
+            
+            try:
+                self.vaccination_history_cls.objects.get(subject_identifier=booster[0])
+            except self.vaccination_history_cls.DoesNotExist:
+                subject_identifier=booster[0]
+                assign = self.site_issue_assign_opts.get(booster[0])
+                self.create_action_item(
+                    site=booster[1],
+                    subject_identifier=subject_identifier,
+                    query_name=query.query_name,
+                    assign=assign,
+                    subject=subject,
+                    comment=comment % {'subject': subject}) 
+    
+    @property
+    def booster_dose_missing_second_dose(self):
+        """
+        Participants with a booster does but missing second dose
+        """
+        
+        query = self.create_query_name(
+        query_name='Booster missing Second Dose')
+        subject = 'Participants with a booster does but missing second dose'
+        comment = f'{subject}. Please re-evaluate the Vaccination History'
+        second_doses = self.vaccination_details_cls.objects.filter(
+            received_dose_before='booster_dose').distinct().values_list(
+            'subject_visit__subject_identifier','site_id').distinct()
+        
+        booster_doses = self.vaccination_details_cls.objects.filter(Q(received_dose_before='booster_dose')  &
+                                                  ~Q(subject_visit__subject_identifier__in=second_doses)).values_list(
+            'subject_visit__subject_identifier','site_id')
+                                                  
+        for booster in booster_doses:
+            try:
+                vac_h = self.vaccination_history_cls.objects.get(subject_identifier=booster[0], received_vaccine='Yes')
+            except self.vaccination_history_cls.DoesNotExist:
+                pass
+            else:
+                if int(vac_h.dose_quantity) < 2:
+                    subject_identifier=booster[0]
+                    assign = self.site_issue_assign_opts.get(booster[0])
+                    self.create_action_item(
+                        site=booster[1],
+                        subject_identifier=subject_identifier,
+                        query_name=query.query_name,
+                        assign=assign,
+                        subject=subject,
+                        comment=comment % {'subject': subject})
+                        
