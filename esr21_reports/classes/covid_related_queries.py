@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from edc_constants.constants import NO, YES, OPEN
 
 from .query_generation import QueryGeneration
+from edc_visit_tracking.constants import SCHEDULED
 
 
 class COVIDRelatedQueries(QueryGeneration):
@@ -35,7 +36,7 @@ class COVIDRelatedQueries(QueryGeneration):
             query_name='Missing symptomatic infections data, but has PCR results.')
         pcr_results = self.covid19_results_cls.objects.filter(site_id=self.site_id)
 
-        enrol_visits = [enrol.subject_visit.id for enrol in self.overall_enrols]
+        enrol_visits = [self.enrol_visit(subject_identifier=enrol).id for enrol in self.overall_enrols]
 
         missing_infections = {}
         no_symptoms = {}
@@ -216,3 +217,8 @@ class COVIDRelatedQueries(QueryGeneration):
             received_dose=YES, site=self.site_id).values_list(
                 'subject_visit__subject_identifier', flat=True).distinct()
         return [vacc for vacc in vaccinations]
+
+    def enrol_visit(self, subject_identifier=None):
+        return self.subject_visit_cls.objects.filter(
+            subject_identifier=subject_identifier, reason=SCHEDULED).earliest(
+                    'report_datetime')
