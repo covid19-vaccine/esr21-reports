@@ -380,22 +380,17 @@ class QueryGeneration:
                 
                 
     @property
-    def ae_not_resolved(self): 
-        """
-        Participants with an ae start date that is greater than 3months 
+    def ae_not_resolved(self):
+        """Participants with an ae start date that is greater than 3months 
         and the ae stop date is not given
         """
-        query = self.create_query_name(
-        query_name='AE not resolved ')
+        query = self.create_query_name(query_name='AE not resolved ')
         subject = 'Participants with ae not resolved.'
         comment = f'{subject}. Please re-evaluate the Advers Event Record'
-        
         aes = self.ae_model_cls.objects.filter(site_id=self.site_id)
-    
         threshold_date = (get_utcnow() - relativedelta(months=3)).date()
         
         for aer in aes:
-            
             ae = aer.adverse_event
             subject_identifier = ae.subject_visit.subject_identifier
             ae_start_date = aer.start_date
@@ -448,7 +443,7 @@ class QueryGeneration:
         subject = 'Participants with a booster does but missing second dose'
         comment = f'{subject}. Please re-evaluate the Vaccination History'
         second_doses = self.vaccination_details_cls.objects.filter(
-            received_dose_before='booster_dose', site_id=self.site_id).distinct().values_list(
+            received_dose_before='booster_dose', site_id=self.site_id).values_list(
             'subject_visit__subject_identifier').distinct()
         
         booster_doses = self.vaccination_details_cls.objects.filter(
