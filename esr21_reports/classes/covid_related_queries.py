@@ -2,7 +2,6 @@ from django.apps import apps as django_apps
 from edc_constants.constants import NO, YES, OPEN
 
 from .query_generation import QueryGeneration
-from edc_visit_tracking.constants import SCHEDULED
 
 
 class COVIDRelatedQueries(QueryGeneration):
@@ -220,5 +219,4 @@ class COVIDRelatedQueries(QueryGeneration):
 
     def enrol_visit(self, subject_identifier=None):
         return self.subject_visit_cls.objects.filter(
-            subject_identifier=subject_identifier, reason=SCHEDULED).earliest(
-                    'report_datetime')
+            subject_identifier=subject_identifier).earliest('report_datetime')

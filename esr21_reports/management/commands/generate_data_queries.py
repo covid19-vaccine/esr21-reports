@@ -25,6 +25,12 @@ class Command(BaseCommand):
         general_queries.duplicate_subject_doses
         print("Generating queries for female missing pregnancy status")
         general_queries.female_missing_preg
+        print("Generating ae stop date not resolved")
+        general_queries.ae_not_resolved
+        print("Generating booster dose with missing second dose")
+        general_queries.booster_dose_missing_second_dose
+        print("Generating booster dose with missing vaccination history")
+        general_queries.booster_dose_missing_vaccination_history
         print('Generating COVID related queries')
         covid_queries.symptomaticinfections_missing()
         covid_queries.pcr_results_missing()
