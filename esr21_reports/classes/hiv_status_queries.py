@@ -3,7 +3,6 @@ from django.db.models import Q
 from edc_constants.constants import POS, YES, OPEN
 
 from .query_generation import QueryGeneration
-from edc_visit_tracking.constants import SCHEDULED
 
 
 class HIVStatusQueries(QueryGeneration):
@@ -27,7 +26,7 @@ class HIVStatusQueries(QueryGeneration):
 
         for idx in self.overall_enrols:
             enrol_visit = self.subject_visit_cls.objects.filter(
-                subject_identifier=idx, reason=SCHEDULED).earliest(
+                subject_identifier=idx, ).earliest(
                     'report_datetime')
             assign = self.site_issue_assign_opts.get(enrol_visit.site.id)
             hiv_test = self.rapid_hiv_status_cls.objects.filter(

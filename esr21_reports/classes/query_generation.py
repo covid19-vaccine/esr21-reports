@@ -5,6 +5,9 @@ from django.conf import settings
 from edc_appointment.constants import NEW_APPT
 from edc_constants.constants import OPEN, YES
 
+from dateutil.relativedelta import relativedelta
+from edc_base.utils import get_utcnow
+
 
 class QueryGeneration:
 
@@ -44,6 +47,10 @@ class QueryGeneration:
         return django_apps.get_model(self.vaccination_details_model)
 
     @property
+    def subject_visit_cls(self):
+        return django_apps.get_model(self.subject_visit_model)
+
+    @property
     def vaccination_history_cls(self):
         return django_apps.get_model(self.vaccination_history_model)
 
@@ -54,10 +61,6 @@ class QueryGeneration:
     @property
     def pregnancy_status_cls(self):
         return django_apps.get_model(self.pregnancy_model)
-
-    @property
-    def subject_visit_cls(self):
-        return django_apps.get_model(self.subject_visit_model)
 
     @property
     def query_name_cls(self):
@@ -156,9 +159,9 @@ class QueryGeneration:
         """
         First dose missing and second dose not missing
         """
-        subject = "Missing first dose data",
-        comment = "The data for the fist dose for the participant is missing."\
-                  " This needs to be recaptured on the system"
+        subject = 'Missing first dose data',
+        comment = ('The data for the fist dose for the participant is missing.'
+                   ' This needs to be recaptured on the system')
         query = self.create_query_name(
             query_name='Missing First Dose Data')
 
@@ -193,9 +196,9 @@ class QueryGeneration:
         """
         query = self.create_query_name(
             query_name='AE start date before first dose')
-        subject = "The adverse even start date is before the first dose."
-        comment = "The participant adverse even start date is before" \
-                  " the participant was vaccinated at visit(s) %(visits)s"
+        subject = 'The adverse even start date is before the first dose.'
+        comment = ('The participant adverse even start date is before the '
+                   'participant was vaccinated at visit(s) %(visits)s')
         aes = self.ae_model_cls.objects.filter(site_id=self.site_id)
         erroneous_aes = {}
 
@@ -370,3 +373,102 @@ class QueryGeneration:
                     assign=assign,
                     subject=subject,
                     comment=comment % {'subject': subject})
+
+    @property
+    def ae_not_resolved(self):
+        """
+        Participants with an AE start date that is greater than 3months
+        and the AE stop date is not given
+        """
+        query = self.create_query_name(query_name='AE not resolved ')
+        subject = 'Participants with AE not resolved.'
+        comment = (f'{subject} at visits %(visits)s. Please re-evaluate the '
+                   'Adverse Event Record')
+        aes = self.ae_model_cls.objects.filter(site_id=self.site_id)
+
+        threshold_date = (get_utcnow() - relativedelta(months=3)).date()
+
+        erroneous_aes = {}
+
+        for aer in aes:
+            ae = aer.adverse_event
+            subject_identifier = ae.subject_visit.subject_identifier
+            visit_code = ae.subject_visit.visit_code
+            visit_code_sequence = ae.subject_visit.visit_code_sequence
+            ae_start_date = aer.start_date
+            ae_stop_date = aer.stop_date
+
+            ae_visits = erroneous_aes.get(subject_identifier, [])
+            if ae_start_date < threshold_date and ae_stop_date is None:
+                ae_visits.append(f'{visit_code}.{visit_code_sequence}')
+                erroneous_aes.update({f'{subject_identifier}': ae_visits})
+                assign = self.site_issue_assign_opts.get(ae.site.id)
+                self.create_action_item(
+                    site=ae.site,
+                    subject_identifier=subject_identifier,
+                    query_name=query.query_name,
+                    assign=assign,
+                    subject=subject,
+                    comment=comment % {'visits': ', '.join(ae_visits)})
+
+    @property
+    def booster_dose_missing_vaccination_history(self):
+        """
+        Participants with a booster dose but missing a vaccination history
+        """
+        query = self.create_query_name(
+            query_name='Booster missing vaccination history')
+        subject = ('Participants with a booster dose but missing a vaccination'
+                   ' history data')
+        comment = f'{subject}.'
+        booster_identifiers = self.vaccination_details_cls.objects.filter(
+            received_dose_before='booster_dose', site_id=self.site_id)
+        for booster in booster_identifiers:
+            subject_identifier = booster.subject_visit.subject_identifier
+            try:
+                self.vaccination_history_cls.objects.get(
+                    subject_identifier=subject_identifier, )
+            except self.vaccination_history_cls.DoesNotExist:
+                assign = self.site_issue_assign_opts.get(booster.site.id)
+                self.create_action_item(
+                    site=booster.site,
+                    subject_identifier=subject_identifier,
+                    query_name=query.query_name,
+                    assign=assign,
+                    subject=subject,
+                    comment=comment)
+
+    @property
+    def booster_dose_missing_second_dose(self):
+        """
+        Participants with a booster dose but missing second dose
+        """
+
+        query = self.create_query_name(
+            query_name='Booster missing Second Dose')
+        subject = 'Participants with a booster dose but missing second dose data'
+        comment = f'{subject}. Please re-evaluate the Vaccination History'
+        second_doses = self.vaccination_details_cls.objects.filter(
+            received_dose_before='second_dose', site_id=self.site_id).values_list(
+            'subject_visit__subject_identifier').distinct()
+
+        booster_doses = self.vaccination_details_cls.objects.filter(
+            received_dose_before='booster_dose', site_id=self.site_id).exclude(
+                subject_visit__subject_identifier__in=second_doses)
+
+        for booster in booster_doses:
+            try:
+                self.vaccination_history_cls.objects.get(
+                    subject_identifier=booster.subject_visit.subject_identifier,
+                    dose2_product_name__isnull=False,
+                    dose2_date__isnull=False, )
+            except self.vaccination_history_cls.DoesNotExist:
+                subject_identifier = booster.subject_visit.subject_identifier
+                assign = self.site_issue_assign_opts.get(booster.site.id)
+                self.create_action_item(
+                    site=booster.site,
+                    subject_identifier=subject_identifier,
+                    query_name=query.query_name,
+                    assign=assign,
+                    subject=subject,
+                    comment=comment)
