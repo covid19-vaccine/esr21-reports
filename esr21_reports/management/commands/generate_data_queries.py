@@ -38,5 +38,5 @@ class Command(BaseCommand):
         covid_queries.enrolment_covidsymptoms_pcr_missing()
         print('Generating HIV related queries')
         hiv_queries.missing_hiv_test_results()
-        hiv_queries.neg_hiv_status_on_art()
+#         hiv_queries.neg_hiv_status_on_art()
         print('Done')
