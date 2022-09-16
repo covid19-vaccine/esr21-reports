@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.db.models import Q
-from edc_constants.constants import NEG, YES, OPEN
+from edc_constants.constants import POS, YES, OPEN
 
 from .query_generation import QueryGeneration
 
@@ -24,17 +24,20 @@ class HIVStatusQueries(QueryGeneration):
         query = self.create_query_name(
             query_name='Participant\'s HIV test result is missing.')
 
-        for enrol in self.overall_enrols:
-            assign = self.site_issue_assign_opts.get(enrol.site.id)
+        for idx in self.overall_enrols:
+            enrol_visit = self.subject_visit_cls.objects.filter(
+                subject_identifier=idx, ).earliest(
+                    'report_datetime')
+            assign = self.site_issue_assign_opts.get(enrol_visit.site.id)
             hiv_test = self.rapid_hiv_status_cls.objects.filter(
                 Q(hiv_testing_consent=YES) | Q(prev_hiv_test=YES),
-                subject_visit=enrol.subject_visit,
+                subject_visit=enrol_visit,
                 hiv_result__isnull=True,
                 rapid_test_result__isnull=True)
             if hiv_test:
                 self.create_action_item(
-                    site=enrol.site,
-                    subject_identifier=enrol.subject_visit.subject_identifier,
+                    site=enrol_visit.site,
+                    subject_identifier=idx,
                     query_name=query.query_name,
                     assign=assign,
                     status=OPEN,
@@ -48,39 +51,31 @@ class HIVStatusQueries(QueryGeneration):
         subject = 'Participant has negative HIV test status, but is on ART.',
         comment = ('Participant\'s HIV test status is negative, but has ART '
                    'medication or HIV selected on the comorbidities for the '
-                   'medical history form at visit %(visits)s. This needs '
-                   'to be corrected/recaptured on the system')
+                   'medical history form at visit %(visit)s. This needs to be '
+                   'corrected/recaptured on the system')
         query = self.create_query_name(
             query_name='Participant\'s HIV test result is missing.')
 
-        hiv_neg = self.rapid_hiv_status_cls.objects.filter(
-            Q(hiv_result=NEG) | Q(rapid_test_result=NEG),
-            site_id=self.site_id)
+        hiv_pos = self.rapid_hiv_status_cls.objects.filter(
+            Q(hiv_result=POS) | Q(rapid_test_result=POS),
+            site_id=self.site_id).values_list(
+                'subject_visit__subject_identifier', flat=True).distinct()
 
-        neg_art = {}
+        medical_history = self.medical_history_cls.objects.filter(
+                comorbidities__name__in=['HIV']).exclude(
+                    subject_visit__subject_identifier__in=hiv_pos)
 
-        for test in hiv_neg:
-            medical_history = self.medical_history_cls.objects.filter(
-                subject_visit=test.subject_visit)
+        for history in medical_history:
+            subject_identifier = history.subject_visit.subject_identifier
 
-            med_hiv = medical_history.filter(comorbidities__name__in=['HIV'])
+            assign = self.site_issue_assign_opts.get(history.site.id)
 
-            if med_hiv:
-                subject_identifier = med_hiv[0].subject_visit.subject_identifier
-                visit_code = med_hiv[0].subject_visit.visit_code
-                visit_code_sequence = med_hiv[0].subject_visit.visit_code_sequence
-
-                art_visits = neg_art.get(subject_identifier, [])
-                assign = self.site_issue_assign_opts.get(med_hiv[0].site.id)
-
-                art_visits.append(f'{visit_code}.{visit_code_sequence}')
-                neg_art.update({f'{subject_identifier}': art_visits})
-                # create action item
-                self.create_action_item(
-                    site=med_hiv[0].site,
-                    subject_identifier=subject_identifier,
-                    query_name=query.query_name,
-                    assign=assign,
-                    status=OPEN,
-                    subject=subject,
-                    comment=comment % {'visits': ', '.join(art_visits), })
+            # create action item
+            self.create_action_item(
+                site=history.site,
+                subject_identifier=subject_identifier,
+                query_name=query.query_name,
+                assign=assign,
+                status=OPEN,
+                subject=subject,
+                comment=comment % {'visit': history.subject_visit.visit_code})
