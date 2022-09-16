@@ -15,3 +15,10 @@ def configure_workers(sender=None, conf=None, **kwargs):
 @shared_task
 def pull_reports_data():
     call_command('populate_graphs')
+
+
+@shared_task
+def generate_queries():
+    print("generating new queries")
+    call_command("generate_data_queries", verbosity=0)
+    return "success"
