@@ -1,11 +1,13 @@
+import csv
+
 from django.apps import apps as django_apps
 from edc_constants.constants import NO, YES, OPEN
 
+from django.conf import settings
 from .query_generation import QueryGeneration
 
 
 class COVIDRelatedQueries(QueryGeneration):
-
     covid19infections_model = 'esr21_subject.covid19symptomaticinfections'
     covid_results_model = 'esr21_subject.covid19results'
 
@@ -35,7 +37,8 @@ class COVIDRelatedQueries(QueryGeneration):
             query_name='Missing symptomatic infections data, but has PCR results.')
         pcr_results = self.covid19_results_cls.objects.filter(site_id=self.site_id)
 
-        enrol_visits = [self.enrol_visit(subject_identifier=enrol).id for enrol in self.overall_enrols]
+        enrol_visits = [self.enrol_visit(subject_identifier=enrol).id for enrol in
+                        self.overall_enrols]
 
         missing_infections = {}
         no_symptoms = {}
@@ -100,7 +103,9 @@ class COVIDRelatedQueries(QueryGeneration):
         query = self.create_query_name(
             query_name='Missing PCR result data, but has symptomatic infections.')
         infections = self.covid19infections_cls.objects.filter(
-            symptomatic_experiences=YES, site_id=self.site_id)
+            symptomatic_experiences=YES, site_id=self.site_id).exclude(
+            subject_visit__subject_identifier__in=self.get_reactogenicities
+        )
         missing_pcr = {}
 
         for infection in infections:
@@ -111,7 +116,7 @@ class COVIDRelatedQueries(QueryGeneration):
             pcr_visits = missing_pcr.get(subject_identifier, [])
             try:
                 self.covid19_results_cls.objects.get(
-                    subject_visit=infection.subject_visit,)
+                    subject_visit=infection.subject_visit, )
             except self.covid19_results_cls.DoesNotExist:
                 # account for reactogenicity, read pids and visit from file.
                 pcr_visits.append(f'{visit_code}.{visit_code_sequence}')
@@ -157,14 +162,14 @@ class COVIDRelatedQueries(QueryGeneration):
             # create action item
             assign = self.site_issue_assign_opts.get(infection.site.id)
             self.create_action_item(
-                    site=infection.site,
-                    subject_identifier=infection.subject_visit.subject_identifier,
-                    query_name=query.query_name,
-                    assign=assign,
-                    status=OPEN,
-                    subject=subject,
-                    comment=comment % {
-                        'visits': ', '.join(infection_visits), })
+                site=infection.site,
+                subject_identifier=infection.subject_visit.subject_identifier,
+                query_name=query.query_name,
+                assign=assign,
+                status=OPEN,
+                subject=subject,
+                comment=comment % {
+                    'visits': ', '.join(infection_visits), })
 
     def enrolment_covidsymptoms_pcr_missing(self):
         """
@@ -181,12 +186,12 @@ class COVIDRelatedQueries(QueryGeneration):
 
         for enrol in self.vaccinations:
             screening = self.screening_eligibility_cls.objects.filter(
-                    subject_identifier=enrol,
-                    symptomatic_infections_experiences=YES)
+                subject_identifier=enrol,
+                symptomatic_infections_experiences=YES)
             if screening:
                 enrol_vacc = self.vaccination_details_cls.objects.filter(
                     subject_visit__subject_identifier=enrol).earliest(
-                        'vaccination_date')
+                    'vaccination_date')
                 subject_identifier = enrol_vacc.subject_visit.subject_identifier
                 visit_code = enrol_vacc.subject_visit.visit_code
                 visit_code_sequence = enrol_vacc.subject_visit.visit_code_sequence
@@ -201,22 +206,31 @@ class COVIDRelatedQueries(QueryGeneration):
                     # create action item
                     assign = self.site_issue_assign_opts.get(enrol_vacc.site.id)
                     self.create_action_item(
-                            site=enrol_vacc.site,
-                            subject_identifier=subject_identifier,
-                            query_name=query.query_name,
-                            assign=assign,
-                            status=OPEN,
-                            subject=subject,
-                            comment=comment % {
-                                'visits': ', '.join(pcr_visits), })
+                        site=enrol_vacc.site,
+                        subject_identifier=subject_identifier,
+                        query_name=query.query_name,
+                        assign=assign,
+                        status=OPEN,
+                        subject=subject,
+                        comment=comment % {
+                            'visits': ', '.join(pcr_visits), })
 
     @property
     def vaccinations(self):
         vaccinations = self.vaccination_details_cls.objects.filter(
             received_dose=YES, site=self.site_id).values_list(
-                'subject_visit__subject_identifier', flat=True).distinct()
+            'subject_visit__subject_identifier', flat=True).distinct()
         return [vacc for vacc in vaccinations]
 
     def enrol_visit(self, subject_identifier=None):
         return self.subject_visit_cls.objects.filter(
             subject_identifier=subject_identifier).earliest('report_datetime')
+
+    @property
+    def get_reactogenicities(self):
+        csvreader = csv.reader(open(
+            f'{settings.BASE_DIR}/esr21/static/esr21_reports/reactogenicity/ae_reactogenicity.csv'))
+        rows = []
+        for row in csvreader:
+            rows.append(row)
+        return rows
