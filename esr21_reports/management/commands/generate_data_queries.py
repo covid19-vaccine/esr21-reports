@@ -31,6 +31,10 @@ class Command(BaseCommand):
         general_queries.booster_dose_missing_second_dose
         print("Generating booster dose with missing vaccination history")
         general_queries.booster_dose_missing_vaccination_history
+        print('Generating Vaccination History Vaccine Details Mismatch')
+        general_queries.vaccination_history_vaccine_details_mismatch()
+        print('Generating duplicate enrollment forms')
+        general_queries.duplicate_enrolment()
         print('Generating COVID related queries')
         covid_queries.symptomaticinfections_missing()
         covid_queries.pcr_results_missing()
