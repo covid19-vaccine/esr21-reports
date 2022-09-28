@@ -394,7 +394,6 @@ class QueryGeneration:
         aes = self.ae_model_cls.objects.filter(site_id=self.site_id).exclude(
             adverse_event__subject_visit__subject_identifier__in=self.get_aes_not_resolved
         )
-        breakpoint()
 
         threshold_date = (get_utcnow() - relativedelta(months=3)).date()
 
