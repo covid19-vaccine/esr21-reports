@@ -1,3 +1,5 @@
+import csv
+
 from django.apps import apps as django_apps
 from django.db.models import Q
 from django.conf import settings
@@ -378,13 +380,16 @@ class QueryGeneration:
     def ae_not_resolved(self):
         """
         Participants with an AE start date that is greater than 3months
-        and the AE stop date is not given
+        and the AE stop date is not specified. This also excludes participants who have 
+        an SAE not resolved
         """
         query = self.create_query_name(query_name='AE not resolved ')
         subject = 'Participants with AE not resolved.'
         comment = (f'{subject} at visits %(visits)s. Please re-evaluate the '
                    'Adverse Event Record')
-        aes = self.ae_model_cls.objects.filter(site_id=self.site_id)
+        aes = self.ae_model_cls.objects.filter(site_id=self.site_id).exclude(
+            subject_visit__subject_identifier__in=self.get_aes_not_resolved
+        )
 
         threshold_date = (get_utcnow() - relativedelta(months=3)).date()
 
@@ -472,3 +477,13 @@ class QueryGeneration:
                     assign=assign,
                     subject=subject,
                     comment=comment)
+
+
+    @property
+    def get_aes_not_resolved(self):
+        csvreader = csv.reader(open(
+            f'{settings.BASE_DIR}/esr21/static/esr21_reports/adverse_events/ae_not_resolved.csv'))
+        rows = []
+        for row in csvreader:
+            rows.append(row)
+        return rows
