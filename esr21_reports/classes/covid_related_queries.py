@@ -232,5 +232,5 @@ class COVIDRelatedQueries(QueryGeneration):
             f'{settings.BASE_DIR}/esr21/static/esr21_reports/reactogenicity/ae_reactogenicity.csv'))
         rows = []
         for row in csvreader:
-            rows.append(row)
+            rows.append(row[0])
         return rows
