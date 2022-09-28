@@ -392,7 +392,7 @@ class QueryGeneration:
         comment = (f'{subject} at visits %(visits)s. Please re-evaluate the '
                    'Adverse Event Record')
         aes = self.ae_model_cls.objects.filter(site_id=self.site_id).exclude(
-            subject_visit__subject_identifier__in=self.get_aes_not_resolved
+            adverse_event__subject_visit__subject_identifier__in=self.get_aes_not_resolved
         )
 
         threshold_date = (get_utcnow() - relativedelta(months=3)).date()
