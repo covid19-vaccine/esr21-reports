@@ -8,8 +8,6 @@ from edc_constants.constants import OPEN, YES
 from dateutil.relativedelta import relativedelta
 from edc_base.utils import get_utcnow
 
-from esr21_subject_validation.constants import FIRST_DOSE, SECOND_DOSE, BOOSTER_DOSE
-
 
 class QueryGeneration:
     vaccination_details_model = 'esr21_subject.vaccinationdetails'
@@ -482,8 +480,7 @@ class QueryGeneration:
     def vaccination_history_vaccine_details_mismatch(self):
         all_vacs = self.vaccination_details_cls.objects.filter(
             site_id=self.site_id, received_dose=YES)
-        for subject_identifier in all_vacs.values_list(
-                'subject_visit__subject_identifier', flat=True).distinct():
+        for subject_identifier in self.overall_enrols:
             sub_vax = all_vacs.filter(
                 subject_visit__subject_identifier=subject_identifier)
             query = self.create_query_name(
@@ -491,12 +488,14 @@ class QueryGeneration:
             assign = self.site_issue_assign_opts.get(self.site_id)
             try:
                 vh_obj = self.vaccination_history_cls.objects.get(
-                    subject_identifier=subject_identifier)
+                    subject_identifier=subject_identifier,
+                    received_vaccine=YES)
             except self.vaccination_history_cls.DoesNotExist:
                 query = self.create_query_name(
                     query_name='Missing vaccination history')
-                subject = 'Participant is vaccinated but is missing vaccination history'
-                comment = f'{subject}. Please complete the Vaccination History form'
+                subject = ('Participant is vaccinated but is missing vaccination '
+                           'history data')
+                comment = f'{subject}. Please complete the Vaccination History data'
                 self.create_action_item(
                     site=sub_vax[0].site,
                     subject_identifier=subject_identifier,
@@ -505,89 +504,38 @@ class QueryGeneration:
                     subject=subject,
                     comment=comment)
             else:
-                if not vh_obj.received_vaccine == YES:
-                    subject = ('vaccination history says that participant have not been'
-                               ' vaccinated')
-                    comment = f'{subject}. Please re-evaluate the Vaccination History'
-                    self.create_action_item(
-                        site=sub_vax[0].site,
-                        subject_identifier=subject_identifier,
-                        query_name=query.query_name,
-                        assign=assign,
-                        subject=subject,
-                        comment=comment)
-                else:
-                    for vax in sub_vax:
-                        if vax.received_dose_before == FIRST_DOSE:
-                            if vh_obj.dose1_product_name != 'azd_1222':
-                                subject = (
-                                    'vaccination history missing first dose data')
-                                comment = f'{subject}.Please re-evaluate the Vaccination History'
-                                self.create_action_item(
-                                    site=vax.site,
-                                    subject_identifier=subject_identifier,
-                                    query_name=query.query_name,
-                                    assign=assign,
-                                    subject=subject,
-                                    comment=comment)
-                            if vh_obj.dose1_date != vax.vaccination_date.date():
-                                subject = (
-                                    'vaccination history first dose date mismatched')
-                                comment = f'{subject}.Please re-evaluate the Vaccination History'
-                                self.create_action_item(
-                                    site=vax.site,
-                                    subject_identifier=subject_identifier,
-                                    query_name=query.query_name,
-                                    assign=assign,
-                                    subject=subject,
-                                    comment=comment)
-                        if vax.received_dose_before == SECOND_DOSE:
-                            if vh_obj.dose2_product_name != 'azd_1222':
-                                subject = (
-                                    'vaccination history missing second dose data')
-                                comment = f'{subject}.Please re-evaluate the Vaccination History'
-                                self.create_action_item(
-                                    site=vax.site,
-                                    subject_identifier=subject_identifier,
-                                    query_name=query.query_name,
-                                    assign=assign,
-                                    subject=subject,
-                                    comment=comment)
-                            if vh_obj.dose2_date != vax.vaccination_date.date():
-                                subject = (
-                                    'vaccination history first dose date mismatched')
-                                comment = f'{subject}.Please re-evaluate the Vaccination History'
-                                self.create_action_item(
-                                    site=vax.site,
-                                    subject_identifier=subject_identifier,
-                                    query_name=query.query_name,
-                                    assign=assign,
-                                    subject=subject,
-                                    comment=comment)
-                        if vax.received_dose_before == BOOSTER_DOSE:
-                            if vh_obj.dose3_product_name != 'azd_1222':
-                                subject = (
-                                    'vaccination history missing booster dose data')
-                                comment = f'{subject}.Please re-evaluate the Vaccination History'
-                                self.create_action_item(
-                                    site=vax.site,
-                                    subject_identifier=subject_identifier,
-                                    query_name=query.query_name,
-                                    assign=assign,
-                                    subject=subject,
-                                    comment=comment)
+                for vax in sub_vax:
+                    self.create_vaccination_mismatch_item(
+                        query, assign, vac_obj=vax, vach_obj=vh_obj)
 
-                            if vh_obj.dose3_date != vax.vaccination_date.date():
-                                subject = (
-                                    'vaccination history first dose date mismatched')
-                                comment = f'{subject}. Please re-evaluate the Vaccination History'
-                                self.create_action_item(
-                                    site=vax.site,
-                                    subject_identifier=subject_identifier,
-                                    query_name=query.query_name,
-                                    assign=assign,
-                                    subject=subject,
-                                    comment=comment)
+    def create_vaccination_mismatch_item(self, query, assign, vac_obj=None, vach_obj=None):
+        dose_match = {'first_dose': '1',
+                      'second_dose': '2',
+                      'booster_dose': '3'}
+        subject_identifier = vach_obj.subject_identifier
+        attr = dose_match.get(vac_obj.received_dose_before)
+        if getattr(vach_obj, f'dose{attr}_product_name') != 'azd_1222':
+            subject = (
+                'vaccination history missing first dose data')
+            comment = f'{subject}.Please re-evaluate the Vaccination History'
+            self.create_action_item(
+                site=vac_obj.site,
+                subject_identifier=subject_identifier,
+                query_name=query.query_name,
+                assign=assign,
+                subject=subject,
+                comment=comment)
+        if getattr(vach_obj, f'dose{attr}_date') != vac_obj.vaccination_date.date():
+            subject = (
+                'vaccination history first dose date mismatched')
+            comment = f'{subject}.Please re-evaluate the Vaccination History'
+            self.create_action_item(
+                site=vac_obj.site,
+                subject_identifier=subject_identifier,
+                query_name=query.query_name,
+                assign=assign,
+                subject=subject,
+                comment=comment)
 
     def duplicate_enrolment(self):
         enrolment_forms = [
