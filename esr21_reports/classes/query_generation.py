@@ -10,7 +10,6 @@ from edc_base.utils import get_utcnow
 
 
 class QueryGeneration:
-
     vaccination_details_model = 'esr21_subject.vaccinationdetails'
     vaccination_history_model = 'esr21_subject.vaccinationhistory'
     ae_model = 'esr21_subject.adverseeventrecord'
@@ -74,7 +73,7 @@ class QueryGeneration:
     def overall_enrols(self):
         enrols = self.vaccination_details_cls.objects.filter(
             received_dose=YES, site_id=self.site_id).values_list(
-                'subject_visit__subject_identifier', flat=True).distinct()
+            'subject_visit__subject_identifier', flat=True).distinct()
         return [enrol for enrol in enrols]
 
     @property
@@ -87,21 +86,24 @@ class QueryGeneration:
     def heterologous_first_enrols(self):
         hist = self.vaccination_history_cls.objects.filter(
             site_id=self.site_id).exclude(dose1_product_name='azd_1222').values_list(
-                'subject_identifier', flat=True)
+            'subject_identifier', flat=True)
 
         enrols = self.vaccination_details_cls.objects.filter(
-            received_dose_before='second_dose', subject_visit__subject_identifier__in=hist)
+            received_dose_before='second_dose',
+            subject_visit__subject_identifier__in=hist)
         return [enrol for enrol in enrols]
 
     @property
     def heterologous_second_enrols(self):
         hist = self.vaccination_history_cls.objects.filter(
             dose_quantity='2', site_id=self.site_id).exclude(
-                Q(dose1_product_name='azd_1222') | Q(dose2_product_name='azd_1222')).values_list(
-                    'subject_identifier', flat=True)
+            Q(dose1_product_name='azd_1222') | Q(
+                dose2_product_name='azd_1222')).values_list(
+            'subject_identifier', flat=True)
 
         enrols = self.vaccination_details_cls.objects.filter(
-            received_dose_before='booster_dose', subject_visit__subject_identifier__in=hist)
+            received_dose_before='booster_dose',
+            subject_visit__subject_identifier__in=hist)
         return [enrol for enrol in enrols]
 
     @property
@@ -132,12 +134,12 @@ class QueryGeneration:
             'subject': subject,
             'comment': comment,
             'site': site
-            }
+        }
         obj, created = self.action_item_cls.objects.update_or_create(
             subject_identifier=subject_identifier,
             query_name=query_name,
             defaults=defaults
-            )
+        )
         return obj
 
     def check_appt_status(self, required_crf=None):
@@ -167,11 +169,11 @@ class QueryGeneration:
 
         first_doses = self.vaccination_details_cls.objects.filter(
             received_dose_before='first_dose', site_id=self.site_id).values_list(
-                'subject_visit__subject_identifier', flat=True).distinct()
+            'subject_visit__subject_identifier', flat=True).distinct()
 
         second_doses = self.vaccination_details_cls.objects.filter(
             received_dose_before='second_dose', site_id=self.site_id).exclude(
-                subject_visit__subject_identifier__in=first_doses)
+            subject_visit__subject_identifier__in=first_doses)
 
         for dose in second_doses:
             try:
@@ -241,7 +243,7 @@ class QueryGeneration:
             query_name='Missing Visit Forms data')
         vax = self.vaccination_details_cls.objects.filter(
             received_dose='Yes', site_id=self.site_id).values_list(
-                'subject_visit__subject_identifier', flat=True).distinct()
+            'subject_visit__subject_identifier', flat=True).distinct()
 
         visits = self.subject_visit_cls.objects.filter(
             subject_identifier__in=vax, reason='scheduled')
@@ -306,7 +308,8 @@ class QueryGeneration:
         comment = f'{subject}. Please re-evaluate the screening criteria'
 
         subject_identifiers = self.screening_eligibility_cls.objects.filter(
-            is_eligible=False, site_id=self.site_id).values_list('subject_identifier', flat=True)
+            is_eligible=False, site_id=self.site_id).values_list('subject_identifier',
+                                                                 flat=True)
         participant_list = self.vaccination_details_cls.objects.filter(
             subject_visit__subject_identifier__in=subject_identifiers,
             received_dose=YES)
@@ -325,7 +328,7 @@ class QueryGeneration:
     def duplicate_subject_doses(self):
         enrolled_identifiers = self.vaccination_details_cls.objects.filter(
             received_dose=YES, site_id=self.site_id).values_list(
-                'subject_visit__subject_identifier', flat=True)
+            'subject_visit__subject_identifier', flat=True)
         enrolled_identifiers = list(set(enrolled_identifiers))
         doses = ['first_dose', 'second_dose', 'booster_dose']
         query = self.create_query_name(
@@ -343,7 +346,8 @@ class QueryGeneration:
                     assign = self.site_issue_assign_opts.get(vaccinations[0].site.id)
                     self.create_action_item(
                         site=vaccinations[0].site,
-                        subject_identifier=vaccinations[0].subject_visit.subject_identifier,
+                        subject_identifier=vaccinations[
+                            0].subject_visit.subject_identifier,
                         query_name=query.query_name,
                         assign=assign,
                         subject=subject,
@@ -454,7 +458,7 @@ class QueryGeneration:
 
         booster_doses = self.vaccination_details_cls.objects.filter(
             received_dose_before='booster_dose', site_id=self.site_id).exclude(
-                subject_visit__subject_identifier__in=second_doses)
+            subject_visit__subject_identifier__in=second_doses)
 
         for booster in booster_doses:
             try:
@@ -472,3 +476,98 @@ class QueryGeneration:
                     assign=assign,
                     subject=subject,
                     comment=comment)
+
+    def vaccination_history_vaccine_details_mismatch(self):
+        all_vacs = self.vaccination_details_cls.objects.filter(
+            site_id=self.site_id, received_dose=YES)
+        for subject_identifier in self.overall_enrols:
+            sub_vax = all_vacs.filter(
+                subject_visit__subject_identifier=subject_identifier)
+            query = self.create_query_name(
+                query_name='Vaccination History Vaccine Details Mismatch')
+            assign = self.site_issue_assign_opts.get(self.site_id)
+            try:
+                vh_obj = self.vaccination_history_cls.objects.get(
+                    subject_identifier=subject_identifier,
+                    received_vaccine=YES)
+            except self.vaccination_history_cls.DoesNotExist:
+                query = self.create_query_name(
+                    query_name='Missing vaccination history')
+                subject = ('Participant is vaccinated but is missing vaccination '
+                           'history data')
+                comment = f'{subject}. Please complete the Vaccination History data'
+                self.create_action_item(
+                    site=sub_vax[0].site,
+                    subject_identifier=subject_identifier,
+                    query_name=query.query_name,
+                    assign=assign,
+                    subject=subject,
+                    comment=comment)
+            else:
+                for vax in sub_vax:
+                    self.create_vaccination_mismatch_item(
+                        query, assign, vac_obj=vax, vach_obj=vh_obj)
+
+    def create_vaccination_mismatch_item(self, query, assign, vac_obj=None, vach_obj=None):
+        dose_match = {'first_dose': '1',
+                      'second_dose': '2',
+                      'booster_dose': '3'}
+        subject_identifier = vach_obj.subject_identifier
+        attr = dose_match.get(vac_obj.received_dose_before)
+        if getattr(vach_obj, f'dose{attr}_product_name') != 'azd_1222':
+            subject = (
+                'vaccination history missing first dose data')
+            comment = f'{subject}.Please re-evaluate the Vaccination History'
+            self.create_action_item(
+                site=vac_obj.site,
+                subject_identifier=subject_identifier,
+                query_name=query.query_name,
+                assign=assign,
+                subject=subject,
+                comment=comment)
+        if getattr(vach_obj, f'dose{attr}_date') != vac_obj.vaccination_date.date():
+            subject = (
+                'vaccination history first dose date mismatched')
+            comment = f'{subject}.Please re-evaluate the Vaccination History'
+            self.create_action_item(
+                site=vac_obj.site,
+                subject_identifier=subject_identifier,
+                query_name=query.query_name,
+                assign=assign,
+                subject=subject,
+                comment=comment)
+
+    def duplicate_enrolment(self):
+        enrolment_forms = [
+            'medicalhistory',
+            'demographicsdata',
+            'rapidhivtesting',
+            'covid19preventativebehaviours',
+        ]
+
+        all_participants = self.vaccination_details_cls.objects.filter(
+            site_id=self.site_id, ).values_list('subject_visit__subject_identifier',
+                                                flat=True).distinct()
+        for form in enrolment_forms:
+            for sub in all_participants:
+                enrolled_participant = self.vaccination_details_cls.objects.filter(
+                    subject_visit__subject_identifier=sub).latest('report_datetime')
+                model_cls = django_apps.get_model(f'esr21_subject.{form}')
+                try:
+                    model_cls.objects.get(
+                        subject_visit__subject_identifier=enrolled_participant.subject_identifier)
+                except model_cls.DoesNotExist:
+                    pass
+                except model_cls.MultipleObjectsReturned:
+                    query = self.create_query_name(
+                        query_name='Duplicate enrollment form')
+                    subject = f'has duplicate {form}'
+                    comment = f'{subject}. Please re-evaluate the Vaccination History'
+                    assign = self.site_issue_assign_opts.get(self.site_id)
+                    self.create_action_item(
+                        site=enrolled_participant.site,
+                        subject_identifier=enrolled_participant.subject_identifier,
+                        query_name=query.query_name,
+                        assign=assign,
+                        subject=subject,
+                        comment=comment)
